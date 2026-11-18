@@ -864,23 +864,25 @@ textarea {
 }
 
 .form-status {
-  min-height: 0;
-  margin: 0.85rem 0 0;
-  font-size: 0.92rem;
+  display: none;
+  margin: 0 0 0.85rem;
+  font-size: 0.95rem;
+  font-weight: 600;
   color: var(--accent);
-}
-
-.form-status:not(:empty) {
-  padding: 0.75rem 0.9rem;
+  padding: 0.85rem 1rem;
   border-radius: 14px;
   background: rgba(94, 200, 255, 0.12);
   border: 1px solid rgba(94, 200, 255, 0.28);
 }
 
+.form-status:not(:empty) {
+  display: block;
+}
+
 .form-status.error {
-  color: #ffb4bb;
-  background: rgba(232, 50, 69, 0.14);
-  border-color: rgba(255, 138, 148, 0.35);
+  color: #ffd0d5;
+  background: rgba(232, 50, 69, 0.22);
+  border-color: rgba(255, 138, 148, 0.5);
 }
 
 /* ===== Footer & FAB ===== */

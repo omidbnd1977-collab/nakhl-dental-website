@@ -130,7 +130,8 @@
       if (!name || !phone || !service) {
         formStatus.textContent = "لطفاً نام، شماره تماس و نوع خدمت را وارد کنید.";
         formStatus.classList.add("error");
-        formStatus.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        formStatus.focus({ preventScroll: true });
+        formStatus.scrollIntoView({ behavior: "smooth", block: "center" });
         return;
       }
 

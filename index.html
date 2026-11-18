@@ -268,17 +268,17 @@
 
           <label>
             نام و نام خانوادگی
-            <input type="text" name="name" required placeholder="مثلاً سارا محمدی" autocomplete="name" />
+            <input type="text" name="name" placeholder="مثلاً سارا محمدی" autocomplete="name" />
           </label>
 
           <label>
             شماره تماس
-            <input type="tel" name="phone" required placeholder="۰۹۱۲xxxxxxxx" autocomplete="tel" dir="ltr" />
+            <input type="tel" name="phone" placeholder="۰۹۱۲xxxxxxxx" autocomplete="tel" dir="ltr" />
           </label>
 
           <label>
             نوع خدمت
-            <select name="service" required>
+            <select name="service">
               <option value="">انتخاب کنید</option>
               <option>طراحی لبخند</option>
               <option>زیبایی و ترمیمی</option>
@@ -294,8 +294,8 @@
             <textarea name="message" rows="3" placeholder="هدف درمان یا زمان پیشنهادی خود را بنویسید"></textarea>
           </label>
 
+          <p class="form-status" id="formStatus" role="status" aria-live="polite" tabindex="-1"></p>
           <button class="btn btn-primary btn-lg btn-block" type="submit">ارسال درخواست</button>
-          <p class="form-status" id="formStatus" role="status" aria-live="polite"></p>
         </form>
       </div>
     </section>
