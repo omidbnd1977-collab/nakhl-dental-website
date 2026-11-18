@@ -249,8 +249,7 @@ button, input, select, textarea { font: inherit; }
 .services-track-wrap { overflow: hidden; }
 .services-track {
   display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(240px, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1rem;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
@@ -554,8 +553,17 @@ button, input, select, textarea { font: inherit; }
   .burger { display: inline-flex; }
   .nav-wrap { position: relative; }
   .nav-glass { position: relative; }
-  .services-track { grid-auto-columns: minmax(78%, 1fr); }
+  .services-track {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(78%, 1fr);
+  }
   .orb-a, .orb-b, .orb-c { opacity: 0.45; }
+}
+@media (max-width: 1024px) and (min-width: 861px) {
+  .services-track {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 @media (max-width: 640px) {
   .contact-tiles, .stats-strip { grid-template-columns: 1fr; }
