@@ -1,23 +1,20 @@
 (() => {
   "use strict";
 
-  const header = document.querySelector(".site-header");
   const nav = document.getElementById("mainNav");
   const navToggle = document.getElementById("navToggle");
   const bookingForm = document.getElementById("bookingForm");
   const formStatus = document.getElementById("formStatus");
+  const track = document.getElementById("servicesTrack");
+  const prevBtn = document.getElementById("svcPrev");
+  const nextBtn = document.getElementById("svcNext");
   const reveals = document.querySelectorAll(".reveal");
   const counters = document.querySelectorAll("[data-count]");
+  const navLinks = [...document.querySelectorAll(".nav-links a[href^='#']")];
+  const sections = [...document.querySelectorAll("section[id]")];
 
   const toPersianDigits = (value) =>
     String(value).replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[d]);
-
-  /* Sticky header shadow */
-  const onScrollHeader = () => {
-    if (!header) return;
-    header.style.boxShadow =
-      window.scrollY > 12 ? "0 10px 30px rgba(0,0,0,0.25)" : "none";
-  };
 
   /* Mobile nav */
   if (navToggle && nav) {
@@ -26,14 +23,12 @@
       event.stopPropagation();
       const open = nav.classList.toggle("open");
       navToggle.setAttribute("aria-expanded", String(open));
-      document.body.classList.toggle("nav-open", open);
     });
 
     nav.querySelectorAll("a").forEach((link) => {
       link.addEventListener("click", () => {
         nav.classList.remove("open");
         navToggle.setAttribute("aria-expanded", "false");
-        document.body.classList.remove("nav-open");
       });
     });
 
@@ -42,58 +37,63 @@
       if (nav.contains(event.target) || navToggle.contains(event.target)) return;
       nav.classList.remove("open");
       navToggle.setAttribute("aria-expanded", "false");
-      document.body.classList.remove("nav-open");
     });
   }
 
-  /* Smooth active section highlight for nav */
-  const sections = [...document.querySelectorAll("section[id]")];
-  const navLinks = [...document.querySelectorAll(".nav a[href^='#']")];
-
+  /* Active nav link */
   const highlightNav = () => {
-    const offset = window.scrollY + 120;
-    let currentId = "";
+    const offset = window.scrollY + 140;
+    let currentId = "top";
     for (const section of sections) {
       if (section.offsetTop <= offset) currentId = section.id;
     }
     navLinks.forEach((link) => {
-      const match = link.getAttribute("href") === `#${currentId}`;
-      link.style.color = match ? "#fff" : "";
+      link.classList.toggle("is-active", link.getAttribute("href") === `#${currentId}`);
     });
   };
 
-  /* Reveal on scroll */
+  /* Services carousel */
+  if (prevBtn) prevBtn.addEventListener("click", () => {
+    if (!track) return;
+    const card = track.querySelector(".svc-card");
+    const step = card ? card.getBoundingClientRect().width + 16 : 280;
+    track.scrollBy({ left: step, behavior: "smooth" });
+  });
+  if (nextBtn) nextBtn.addEventListener("click", () => {
+    if (!track) return;
+    const card = track.querySelector(".svc-card");
+    const step = card ? card.getBoundingClientRect().width + 16 : 280;
+    track.scrollBy({ left: -step, behavior: "smooth" });
+  });
+
+  /* Reveal */
   if ("IntersectionObserver" in window) {
     const revealObserver = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("visible");
-            revealObserver.unobserve(entry.target);
-          }
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("visible");
+          revealObserver.unobserve(entry.target);
         });
       },
-      { threshold: 0.16, rootMargin: "0px 0px -40px 0px" }
+      { threshold: 0.14, rootMargin: "0px 0px -30px 0px" }
     );
     reveals.forEach((el) => revealObserver.observe(el));
   } else {
     reveals.forEach((el) => el.classList.add("visible"));
   }
 
-  /* Animated counters */
+  /* Counters */
   const animateCounter = (el) => {
     const target = Number(el.getAttribute("data-count") || 0);
     const duration = 1400;
     const start = performance.now();
-
     const tick = (now) => {
       const progress = Math.min((now - start) / duration, 1);
       const eased = 1 - Math.pow(1 - progress, 3);
-      const value = Math.round(target * eased);
-      el.textContent = toPersianDigits(value);
+      el.textContent = toPersianDigits(Math.round(target * eased));
       if (progress < 1) requestAnimationFrame(tick);
     };
-
     requestAnimationFrame(tick);
   };
 
@@ -106,7 +106,7 @@
           counterObserver.unobserve(entry.target);
         });
       },
-      { threshold: 0.5 }
+      { threshold: 0.45 }
     );
     counters.forEach((el) => counterObserver.observe(el));
   } else {
@@ -115,8 +115,8 @@
     });
   }
 
-  /* Booking form → WhatsApp */
-  if (bookingForm) {
+  /* Booking form */
+  if (bookingForm && formStatus) {
     bookingForm.addEventListener("submit", (event) => {
       event.preventDefault();
       formStatus.classList.remove("error");
@@ -145,18 +145,12 @@
         .filter(Boolean)
         .join("\n");
 
-      const url = `https://wa.me/989120153255?text=${encodeURIComponent(text)}`;
       formStatus.textContent = "در حال انتقال به واتساپ برای هماهنگی نوبت…";
-      window.open(url, "_blank", "noopener,noreferrer");
+      window.open(`https://wa.me/989120153255?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer");
       bookingForm.reset();
     });
   }
 
-  window.addEventListener("scroll", () => {
-    onScrollHeader();
-    highlightNav();
-  }, { passive: true });
-
-  onScrollHeader();
+  window.addEventListener("scroll", highlightNav, { passive: true });
   highlightNav();
 })();
