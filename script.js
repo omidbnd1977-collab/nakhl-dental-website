@@ -21,15 +21,19 @@
 
   /* Mobile nav */
   if (navToggle && nav) {
-    navToggle.addEventListener("click", () => {
+    navToggle.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
       const open = nav.classList.toggle("open");
       navToggle.setAttribute("aria-expanded", String(open));
+      document.body.classList.toggle("nav-open", open);
     });
 
     nav.querySelectorAll("a").forEach((link) => {
       link.addEventListener("click", () => {
         nav.classList.remove("open");
         navToggle.setAttribute("aria-expanded", "false");
+        document.body.classList.remove("nav-open");
       });
     });
 
@@ -38,6 +42,7 @@
       if (nav.contains(event.target) || navToggle.contains(event.target)) return;
       nav.classList.remove("open");
       navToggle.setAttribute("aria-expanded", "false");
+      document.body.classList.remove("nav-open");
     });
   }
 
@@ -125,6 +130,7 @@
       if (!name || !phone || !service) {
         formStatus.textContent = "لطفاً نام، شماره تماس و نوع خدمت را وارد کنید.";
         formStatus.classList.add("error");
+        formStatus.scrollIntoView({ behavior: "smooth", block: "nearest" });
         return;
       }
 
