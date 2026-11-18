@@ -764,7 +764,7 @@ textarea {
 
 /* ===== Contact ===== */
 .contact {
-  padding: 0 0 5rem;
+  padding: 0 0 7rem;
 }
 
 .contact-grid {
@@ -816,8 +816,15 @@ textarea {
 }
 
 .booking-card {
+  position: relative;
+  z-index: 2;
   padding: 1.4rem;
   background: rgba(255, 255, 255, 0.08);
+}
+
+.booking-card .btn-block {
+  position: relative;
+  z-index: 3;
 }
 
 .booking-card h3 {
