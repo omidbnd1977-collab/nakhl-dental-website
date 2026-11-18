@@ -1,0 +1,10 @@
+{
+  "name": "nakhl-dental",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Persian RTL landing page for Dr. Sahra Abbasi — Nakhl Dental Clinic",
+  "scripts": {
+    "start": "python3 -m http.server 3847 --bind 127.0.0.1",
+    "serve": "python3 -m http.server 3847 --bind 127.0.0.1"
+  }
+}
