@@ -40,23 +40,41 @@
     let seeking = false;
     let pendingTime = 0;
     let rafId = 0;
+    let seekWatch = 0;
 
-    const applyTime = (time) => {
-      pendingTime = Math.min(Math.max(time, 0), Math.max(duration - 0.001, 0));
-      if (seeking || !duration) return;
-      if (Math.abs(heroVideo.currentTime - pendingTime) < 0.012) return;
-      seeking = true;
-      try {
-        if (typeof heroVideo.fastSeek === "function") heroVideo.fastSeek(pendingTime);
-        else heroVideo.currentTime = pendingTime;
-      } catch (_) {
-        seeking = false;
+    const clearSeekLock = () => {
+      seeking = false;
+      if (seekWatch) {
+        clearTimeout(seekWatch);
+        seekWatch = 0;
       }
     };
 
+    const applyTime = (time) => {
+      if (!duration) return;
+      pendingTime = Math.min(Math.max(time, 0), duration - 0.001);
+      if (Math.abs(heroVideo.currentTime - pendingTime) < 0.016) return;
+      if (seeking) return;
+
+      seeking = true;
+      try {
+        heroVideo.currentTime = pendingTime;
+      } catch (_) {
+        clearSeekLock();
+        return;
+      }
+
+      // Some browsers delay or skip seeked; never leave the scrub locked.
+      seekWatch = window.setTimeout(() => {
+        seeking = false;
+        seekWatch = 0;
+        if (Math.abs(heroVideo.currentTime - pendingTime) > 0.04) applyTime(pendingTime);
+      }, 120);
+    };
+
     heroVideo.addEventListener("seeked", () => {
-      seeking = false;
-      if (Math.abs(heroVideo.currentTime - pendingTime) > 0.02) applyTime(pendingTime);
+      clearSeekLock();
+      if (Math.abs(heroVideo.currentTime - pendingTime) > 0.03) applyTime(pendingTime);
     });
 
     const syncUi = (progress) => {
