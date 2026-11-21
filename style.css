@@ -72,8 +72,7 @@ button, input, select, textarea { font: inherit; }
   isolation: isolate;
 }
 
-.scroll-hero-canvas,
-.scroll-hero-poster {
+.scroll-hero-video {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -84,19 +83,6 @@ button, input, select, textarea { font: inherit; }
   pointer-events: none;
   transform: translateZ(0);
   backface-visibility: hidden;
-}
-
-.scroll-hero-canvas {
-  opacity: 0;
-  transition: opacity 0.25s ease;
-}
-
-.scroll-hero-canvas.is-ready {
-  opacity: 1;
-}
-
-.scroll-hero-poster.is-hidden {
-  opacity: 0;
 }
 
 .scroll-hero-shade {
