@@ -9,10 +9,14 @@
 ## اجرای محلی
 
 ```bash
+git clone https://github.com/<OWNER>/nakhl-dental-website.git
+cd nakhl-dental-website
 python3 serve.py --port 3847
 ```
 
 سپس `http://localhost:3847` را باز کنید. سرور محلی از HTTP Range، gzip و Cache-Control پشتیبانی می‌کند.
+
+ویدیوی هیرو (`assets/videos/clinic-tour.mp4`، حدود ۲٫۳ مگابایت) داخل همین ریپو است و نیازی به Git LFS ندارد.
 
 ## بهینه‌سازی عملکرد
 

@@ -1,0 +1,44 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+*.code-workspace
+
+# Env & secrets — never commit
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+credentials.json
+secrets/
+.secrets/
+
+# Node / tooling
+node_modules/
+npm-debug.log*
+yarn-error.log*
+.pnpm-store/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Build / caches
+.cache/
+dist/
+.tmp/
+tmp/
+*.log
+
+# Local agent / tooling artifacts
+/opt/
+.cursor/
+*.canvas.tsx
