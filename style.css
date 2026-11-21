@@ -72,7 +72,9 @@ button, input, select, textarea { font: inherit; }
   isolation: isolate;
 }
 
-.scroll-hero-video {
+.scroll-hero-video,
+.scroll-hero-canvas,
+.scroll-hero-poster {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -85,10 +87,32 @@ button, input, select, textarea { font: inherit; }
   backface-visibility: hidden;
 }
 
+.scroll-hero-video {
+  opacity: 0; /* frames/canvas are the visible scrub layer; video stays loaded for sync */
+}
+
+.scroll-hero-canvas {
+  opacity: 0;
+  z-index: 1;
+}
+
+.scroll-hero-canvas.is-ready {
+  opacity: 1;
+}
+
+.scroll-hero-poster {
+  z-index: 1;
+  transition: opacity 0.25s ease;
+}
+
+.scroll-hero-poster.is-hidden {
+  opacity: 0;
+}
+
 .scroll-hero-shade {
   position: absolute;
   inset: 0;
-  z-index: 1;
+  z-index: 2;
   background:
     linear-gradient(180deg, rgba(8, 14, 22, 0.55) 0%, rgba(8, 14, 22, 0.12) 28%, rgba(8, 14, 22, 0.2) 62%, rgba(8, 14, 22, 0.72) 100%),
     linear-gradient(90deg, rgba(8, 14, 22, 0.18) 0%, transparent 42%, rgba(8, 14, 22, 0.45) 100%);

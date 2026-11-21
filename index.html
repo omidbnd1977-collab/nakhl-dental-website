@@ -18,17 +18,32 @@
   <section class="scroll-hero" id="top" aria-label="ورود سینمایی به کلینیک">
     <div class="scroll-hero-pin">
       <video
-        id="heroScrub"
+        id="heroScrubVideo"
         class="scroll-hero-video"
         src="assets/videos/clinic-tour.mp4"
         muted
         playsinline
         webkit-playsinline
         preload="auto"
-        poster="assets/images/clinic-exterior.jpg"
+        poster="assets/images/clinic-tour-poster.jpg"
         disablepictureinpicture
         disableremoteplayback
       ></video>
+      <canvas
+        id="heroScrub"
+        class="scroll-hero-canvas"
+        width="1108"
+        height="832"
+        aria-hidden="true"
+      ></canvas>
+      <img
+        id="heroPoster"
+        class="scroll-hero-poster"
+        src="assets/images/clinic-tour-poster.jpg"
+        alt=""
+        decoding="async"
+        fetchpriority="high"
+      />
       <div class="scroll-hero-shade" aria-hidden="true"></div>
 
       <header class="nav-wrap scroll-nav">
