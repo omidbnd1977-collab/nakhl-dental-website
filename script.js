@@ -20,87 +20,118 @@
   const toPersianDigits = (value) =>
     String(value).replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[d]);
 
-  /* Scroll-scrub cinematic hero */
-  if (scrollHero && heroVideo) {
+  /* GSAP ScrollTrigger cinematic video scrub */
+  const initHeroScrub = () => {
+    if (!scrollHero || !heroVideo || typeof gsap === "undefined" || typeof ScrollTrigger === "undefined") {
+      return false;
+    }
+
+    gsap.registerPlugin(ScrollTrigger);
+
     heroVideo.pause();
     heroVideo.muted = true;
     heroVideo.playsInline = true;
-    let duration = 0;
-    let ticking = false;
-    let seeking = false;
-    let targetTime = 0;
-    const overlayAt = 0.7;
-    const frameStrip = document.getElementById("heroFrames");
-    const frameImgs = frameStrip ? [...frameStrip.querySelectorAll("img")] : [];
+    heroVideo.removeAttribute("autoplay");
 
-    const setDuration = () => {
-      if (Number.isFinite(heroVideo.duration) && heroVideo.duration > 0) {
-        duration = heroVideo.duration;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const overlayAt = 0.72;
+    const proxy = { time: 0 };
+    let duration = 0;
+    let seeking = false;
+    let pendingTime = 0;
+    let rafId = 0;
+
+    const applyTime = (time) => {
+      pendingTime = Math.min(Math.max(time, 0), Math.max(duration - 0.001, 0));
+      if (seeking || !duration) return;
+      if (Math.abs(heroVideo.currentTime - pendingTime) < 0.012) return;
+      seeking = true;
+      try {
+        if (typeof heroVideo.fastSeek === "function") heroVideo.fastSeek(pendingTime);
+        else heroVideo.currentTime = pendingTime;
+      } catch (_) {
+        seeking = false;
       }
     };
-    heroVideo.addEventListener("loadedmetadata", setDuration);
+
     heroVideo.addEventListener("seeked", () => {
       seeking = false;
-      if (Math.abs(heroVideo.currentTime - targetTime) > 0.08) {
-        seeking = true;
-        heroVideo.currentTime = targetTime;
-      }
+      if (Math.abs(heroVideo.currentTime - pendingTime) > 0.02) applyTime(pendingTime);
     });
-    setDuration();
 
-    // Warm decoder so the first seek paints a frame
-    const warm = heroVideo.play();
-    if (warm && typeof warm.then === "function") {
-      warm.then(() => heroVideo.pause()).catch(() => {});
-    }
-
-    const paintFrames = (progress) => {
-      if (!frameImgs.length) return;
-      const max = frameImgs.length - 1;
-      const pos = progress * max;
-      frameImgs.forEach((img, index) => {
-        const dist = Math.abs(pos - index);
-        const opacity = Math.max(0, 1 - dist);
-        img.style.opacity = String(opacity);
-      });
+    const syncUi = (progress) => {
+      if (heroCopy) heroCopy.classList.toggle("is-on", progress >= overlayAt);
+      if (scrollHint) scrollHint.classList.toggle("is-gone", progress > 0.05);
     };
 
-    const scrub = () => {
-      ticking = false;
-      const rect = scrollHero.getBoundingClientRect();
-      const total = scrollHero.offsetHeight - window.innerHeight;
-      const scrolled = Math.min(Math.max(-rect.top, 0), Math.max(total, 1));
-      const progress = scrolled / Math.max(total, 1);
+    const startScrub = () => {
+      duration = heroVideo.duration || 0;
+      if (!duration) return;
 
-      paintFrames(progress);
+      const existing = ScrollTrigger.getById("heroScrub");
+      if (existing) existing.kill();
 
-      if (duration > 0) {
-        targetTime = progress * Math.max(duration - 0.04, 0);
-        if (!seeking && Math.abs(heroVideo.currentTime - targetTime) > 0.04) {
-          seeking = true;
-          try {
-            heroVideo.currentTime = targetTime;
-          } catch (_) {
-            seeking = false;
-          }
-        }
+      if (reduceMotion) {
+        heroVideo.currentTime = Math.max(duration - 0.05, 0);
+        syncUi(1);
+        return;
       }
 
-      if (heroCopy) heroCopy.classList.toggle("is-on", progress >= overlayAt);
-      if (scrollHint) scrollHint.classList.toggle("is-gone", progress > 0.06);
+      proxy.time = heroVideo.currentTime || 0;
+      gsap.to(proxy, {
+        time: duration - 0.001,
+        ease: "none",
+        scrollTrigger: {
+          id: "heroScrub",
+          trigger: scrollHero,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 1.2,
+          invalidateOnRefresh: true,
+          onUpdate: (self) => syncUi(self.progress),
+        },
+        onUpdate: () => {
+          if (rafId) return;
+          rafId = requestAnimationFrame(() => {
+            rafId = 0;
+            applyTime(proxy.time);
+          });
+        },
+      });
+
+      ScrollTrigger.refresh();
     };
 
-    const onScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(scrub);
+    const ready = () => {
+      if (heroVideo.readyState >= 1) startScrub();
     };
 
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    heroVideo.addEventListener("loadedmetadata", scrub);
-    scrub();
-  }
+    heroVideo.addEventListener("loadedmetadata", ready, { once: true });
+    heroVideo.addEventListener("loadeddata", ready, { once: true });
+    if (heroVideo.readyState >= 1) ready();
+
+    // Keep decoder warm without autoplaying content
+    heroVideo.addEventListener(
+      "canplay",
+      () => {
+        const t = heroVideo.currentTime;
+        heroVideo.currentTime = Math.min(t + 0.001, heroVideo.duration || t);
+      },
+      { once: true }
+    );
+
+    return true;
+  };
+
+  const bootHero = () => {
+    if (initHeroScrub()) return;
+    let tries = 0;
+    const timer = setInterval(() => {
+      tries += 1;
+      if (initHeroScrub() || tries > 40) clearInterval(timer);
+    }, 50);
+  };
+  bootHero();
 
   /* Mobile nav */
   if (navToggle && nav) {
