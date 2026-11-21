@@ -50,6 +50,140 @@ button, input, select, textarea { font: inherit; }
   gap: 1.15rem;
 }
 
+/* ===== SCROLL HERO (cinematic scrub) ===== */
+.scroll-hero {
+  position: relative;
+  height: 300vh;
+  background: #0b121a;
+}
+
+.scroll-hero-pin {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  color: #fff;
+}
+
+.scroll-hero-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.35;
+}
+
+.scroll-hero-frames {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.scroll-hero-frames img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  will-change: opacity;
+}
+
+.scroll-hero-frames img:first-child { opacity: 1; }
+
+.scroll-hero-shade {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background:
+    linear-gradient(180deg, rgba(8, 14, 22, 0.55) 0%, rgba(8, 14, 22, 0.12) 28%, rgba(8, 14, 22, 0.2) 62%, rgba(8, 14, 22, 0.72) 100%),
+    linear-gradient(90deg, rgba(8, 14, 22, 0.18) 0%, transparent 42%, rgba(8, 14, 22, 0.45) 100%);
+  transition: opacity 0.6s ease;
+}
+
+.scroll-nav {
+  position: relative;
+  z-index: 5;
+  width: min(100% - 2rem, 1180px);
+  margin-inline: auto;
+  padding: 1.2rem 0 0;
+}
+
+.scroll-hero-copy {
+  position: absolute;
+  z-index: 4;
+  right: max(1.25rem, calc((100vw - 1180px) / 2));
+  bottom: clamp(4.5rem, 10vh, 7.5rem);
+  max-width: min(34rem, calc(100% - 2.5rem));
+  text-align: right;
+  opacity: 0;
+  transform: translateY(28px);
+  filter: blur(8px);
+  transition: opacity 0.9s var(--ease), transform 0.9s var(--ease), filter 0.9s var(--ease);
+  pointer-events: none;
+}
+
+.scroll-hero-copy.is-on {
+  opacity: 1;
+  transform: none;
+  filter: blur(0);
+  pointer-events: auto;
+}
+
+.scroll-hero-copy h1 {
+  margin: 0 0 0.85rem;
+  font-family: var(--display);
+  font-size: clamp(2.7rem, 6vw, 4.6rem);
+  font-weight: 700;
+  line-height: 1.08;
+  text-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+}
+
+.scroll-hero-copy h1 em {
+  font-style: italic;
+  font-weight: 400;
+}
+
+.scroll-hero-copy > p {
+  margin: 0 0 1.35rem;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.98rem;
+  line-height: 1.85;
+  max-width: 28rem;
+  margin-inline-start: auto;
+}
+
+.scroll-hint {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  bottom: 1.4rem;
+  transform: translateX(-50%);
+  margin: 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.72);
+  transition: opacity 0.5s ease;
+  white-space: nowrap;
+}
+
+.scroll-hint.is-gone { opacity: 0; }
+
+@media (max-width: 640px) {
+  .scroll-hero-copy {
+    right: 1rem;
+    left: 1rem;
+    max-width: none;
+    bottom: 4.2rem;
+  }
+  .scroll-hero-copy > p { margin-inline: 0; }
+}
+
 /* ===== Buttons ===== */
 .pill-cta {
   display: inline-flex;
@@ -158,14 +292,6 @@ button, input, select, textarea { font: inherit; }
   width: 320px; height: 320px;
   bottom: -100px; left: -60px;
   background: radial-gradient(circle, rgba(90, 150, 210, 0.16), transparent 70%);
-}
-
-.hero-kicker {
-  margin: 0 0 0.85rem;
-  color: rgba(255, 255, 255, 0.62);
-  font-size: 0.82rem;
-  font-weight: 500;
-  letter-spacing: 0.02em;
 }
 
 .nav-wrap {
@@ -303,6 +429,12 @@ button, input, select, textarea { font: inherit; }
 .hero-link:hover {
   color: #fff;
   border-color: rgba(255, 255, 255, 0.7);
+}
+.hero-kicker {
+  margin: 0 0 0.75rem;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 0.84rem;
+  font-weight: 500;
 }
 
 .hero-mini {

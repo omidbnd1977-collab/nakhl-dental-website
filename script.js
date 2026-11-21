@@ -12,9 +12,95 @@
   const counters = document.querySelectorAll("[data-count]");
   const navLinks = [...document.querySelectorAll(".nav-links a[href^='#']")];
   const sections = [...document.querySelectorAll("section[id]")];
+  const scrollHero = document.querySelector(".scroll-hero");
+  const heroVideo = document.getElementById("heroScrub");
+  const heroCopy = document.getElementById("heroCopy");
+  const scrollHint = document.getElementById("scrollHint");
 
   const toPersianDigits = (value) =>
     String(value).replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[d]);
+
+  /* Scroll-scrub cinematic hero */
+  if (scrollHero && heroVideo) {
+    heroVideo.pause();
+    heroVideo.muted = true;
+    heroVideo.playsInline = true;
+    let duration = 0;
+    let ticking = false;
+    let seeking = false;
+    let targetTime = 0;
+    const overlayAt = 0.7;
+    const frameStrip = document.getElementById("heroFrames");
+    const frameImgs = frameStrip ? [...frameStrip.querySelectorAll("img")] : [];
+
+    const setDuration = () => {
+      if (Number.isFinite(heroVideo.duration) && heroVideo.duration > 0) {
+        duration = heroVideo.duration;
+      }
+    };
+    heroVideo.addEventListener("loadedmetadata", setDuration);
+    heroVideo.addEventListener("seeked", () => {
+      seeking = false;
+      if (Math.abs(heroVideo.currentTime - targetTime) > 0.08) {
+        seeking = true;
+        heroVideo.currentTime = targetTime;
+      }
+    });
+    setDuration();
+
+    // Warm decoder so the first seek paints a frame
+    const warm = heroVideo.play();
+    if (warm && typeof warm.then === "function") {
+      warm.then(() => heroVideo.pause()).catch(() => {});
+    }
+
+    const paintFrames = (progress) => {
+      if (!frameImgs.length) return;
+      const max = frameImgs.length - 1;
+      const pos = progress * max;
+      frameImgs.forEach((img, index) => {
+        const dist = Math.abs(pos - index);
+        const opacity = Math.max(0, 1 - dist);
+        img.style.opacity = String(opacity);
+      });
+    };
+
+    const scrub = () => {
+      ticking = false;
+      const rect = scrollHero.getBoundingClientRect();
+      const total = scrollHero.offsetHeight - window.innerHeight;
+      const scrolled = Math.min(Math.max(-rect.top, 0), Math.max(total, 1));
+      const progress = scrolled / Math.max(total, 1);
+
+      paintFrames(progress);
+
+      if (duration > 0) {
+        targetTime = progress * Math.max(duration - 0.04, 0);
+        if (!seeking && Math.abs(heroVideo.currentTime - targetTime) > 0.04) {
+          seeking = true;
+          try {
+            heroVideo.currentTime = targetTime;
+          } catch (_) {
+            seeking = false;
+          }
+        }
+      }
+
+      if (heroCopy) heroCopy.classList.toggle("is-on", progress >= overlayAt);
+      if (scrollHint) scrollHint.classList.toggle("is-gone", progress > 0.06);
+    };
+
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(scrub);
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    heroVideo.addEventListener("loadedmetadata", scrub);
+    scrub();
+  }
 
   /* Mobile nav */
   if (navToggle && nav) {

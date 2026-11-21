@@ -12,13 +12,28 @@
   <link rel="icon" href="assets/images/logo.svg" type="image/svg+xml" />
 </head>
 <body>
-  <div class="page">
-    <!-- ========== HERO ========== -->
-    <section class="hero" id="top">
-      <span class="glow glow-tl" aria-hidden="true"></span>
-      <span class="glow glow-br" aria-hidden="true"></span>
+  <!-- ========== SCROLL HERO ========== -->
+  <section class="scroll-hero" id="top" aria-label="ورود سینمایی به کلینیک">
+    <div class="scroll-hero-pin">
+      <video
+        id="heroScrub"
+        class="scroll-hero-video"
+        src="assets/images/hero-dolly.mp4"
+        muted
+        playsinline
+        preload="auto"
+        poster="assets/images/clinic-exterior.jpg"
+      ></video>
+      <div class="scroll-hero-frames" id="heroFrames" aria-hidden="true">
+        <img src="assets/images/dolly/01-exterior-hd.jpg" alt="" />
+        <img src="assets/images/dolly/02-gate-hd.jpg" alt="" />
+        <img src="assets/images/dolly/03-door-hd.jpg" alt="" />
+        <img src="assets/images/dolly/04-reception-hd.jpg" alt="" />
+        <img src="assets/images/dolly/05-lobby-hd.jpg" alt="" />
+      </div>
+      <div class="scroll-hero-shade" aria-hidden="true"></div>
 
-      <header class="nav-wrap">
+      <header class="nav-wrap scroll-nav">
         <div class="nav-bar">
           <a class="logo" href="#top">
             <img src="assets/images/logo.svg" alt="" width="34" height="38" />
@@ -48,36 +63,27 @@
         </div>
       </header>
 
-      <div class="hero-stage">
-        <div class="hero-copy reveal">
-          <p class="hero-kicker">قشم · دکتر صحرا عباسی</p>
-          <h1>فراتر از<br /><em>یک لبخند.</em></h1>
-          <p>
-            مراقبت زیبایی و ترمیمی با دقت بالا، در کلینیک دندانپزشکی نخل.
-            مسیر درمان از مشاوره تا نتیجه، شخصی و آرام پیش می‌رود.
-          </p>
-          <div class="hero-actions">
-            <a class="pill-cta pill-dark pill-lg" href="#contact">
-              رزرو ویزیت
-              <span class="pill-plus" aria-hidden="true">←</span>
-            </a>
-            <a class="hero-link" href="#about">آشنایی با ما</a>
-          </div>
-        </div>
-
-        <div class="hero-visual reveal delay-1">
-          <img class="hero-portrait" src="assets/images/clinic-exterior.jpg" alt="نمای بیرونی کلینیک دندانپزشکی نخل در قشم" />
-          <aside class="hero-mini">
-            <span class="hero-pin" aria-hidden="true"></span>
-            <div>
-              <strong>کلینیک دندانپزشکی نخل</strong>
-              <span>قشم</span>
-            </div>
-          </aside>
+      <div class="scroll-hero-copy" id="heroCopy">
+        <p class="hero-kicker">قشم · دکتر صحرا عباسی</p>
+        <h1>فراتر از<br /><em>یک لبخند.</em></h1>
+        <p>
+          مراقبت زیبایی و ترمیمی با دقت بالا، در کلینیک دندانپزشکی نخل.
+          مسیر درمان از مشاوره تا نتیجه، شخصی و آرام پیش می‌رود.
+        </p>
+        <div class="hero-actions">
+          <a class="pill-cta pill-dark pill-lg" href="#contact">
+            رزرو نوبت
+            <span class="pill-plus" aria-hidden="true">←</span>
+          </a>
+          <a class="hero-link" href="#services">مشاهده خدمات</a>
         </div>
       </div>
-    </section>
 
+      <p class="scroll-hint" id="scrollHint" aria-hidden="true">برای ورود به کلینیک اسکرول کنید</p>
+    </div>
+  </section>
+
+  <div class="page">
     <!-- ========== SERVICES ========== -->
     <section class="services" id="services">
       <div class="services-inner">
