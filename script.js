@@ -5,13 +5,9 @@
   const navToggle = document.getElementById("navToggle");
   const bookingForm = document.getElementById("bookingForm");
   const formStatus = document.getElementById("formStatus");
-  const track = document.getElementById("servicesTrack");
-  const prevBtn = document.getElementById("svcPrev");
-  const nextBtn = document.getElementById("svcNext");
   const reveals = document.querySelectorAll(".reveal");
-  const counters = document.querySelectorAll("[data-count]");
   const navLinks = [...document.querySelectorAll(".nav-links a[href^='#']")];
-  const sections = [...document.querySelectorAll("section[id]")];
+  const sections = [...document.querySelectorAll("section[id], header[id]")];
   const scrollHero = document.querySelector(".scroll-hero");
   const heroPin = document.querySelector(".scroll-hero-pin");
   const heroVideo = document.getElementById("heroScrubVideo");
@@ -19,8 +15,31 @@
   const heroCopy = document.getElementById("heroCopy");
   const scrollHint = document.getElementById("scrollHint");
 
-  const toPersianDigits = (value) =>
-    String(value).replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[d]);
+  const isMobile = () => window.matchMedia("(max-width: 767px)").matches;
+  const WA_NUMBER = "989120153255";
+
+  /* Ensure video source + smart preload (avoid heavy mobile download until needed) */
+  const prepareHeroVideo = () => {
+    if (!heroVideo) return;
+    const source = heroVideo.querySelector("source");
+    const src = source?.getAttribute("src") || "assets/videos/clinic-tour.mp4";
+    if (!heroVideo.getAttribute("src") && !source) {
+      heroVideo.src = src;
+    }
+    heroVideo.preload = isMobile() ? "metadata" : "auto";
+  };
+
+  const ensureVideoFullyLoaded = () => {
+    if (!heroVideo) return;
+    if (heroVideo.preload !== "auto") {
+      heroVideo.preload = "auto";
+      try {
+        heroVideo.load();
+      } catch (_) {
+        /* ignore */
+      }
+    }
+  };
 
   /* GSAP ScrollTrigger pin + video.currentTime scrub */
   const initHeroScrub = () => {
@@ -28,8 +47,8 @@
     if (typeof gsap === "undefined" || typeof ScrollTrigger === "undefined") return false;
 
     gsap.registerPlugin(ScrollTrigger);
+    prepareHeroVideo();
 
-    // Kill any previous hero triggers to avoid duplicates
     ScrollTrigger.getAll().forEach((st) => {
       if (st.vars && st.vars.id === "heroScrub") st.kill();
     });
@@ -43,13 +62,6 @@
     heroVideo.setAttribute("playsinline", "");
     heroVideo.removeAttribute("autoplay");
     heroVideo.removeAttribute("controls");
-    // Full buffer helps scrub seeking; file is optimized (~2MB).
-    heroVideo.preload = "auto";
-    try {
-      heroVideo.load();
-    } catch (_) {
-      /* ignore */
-    }
 
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const overlayAt = 0.72;
@@ -63,6 +75,7 @@
     const syncUi = (progress) => {
       if (heroCopy) heroCopy.classList.toggle("is-on", progress >= overlayAt);
       if (scrollHint) scrollHint.classList.toggle("is-gone", progress > 0.04);
+      if (progress > 0.02) ensureVideoFullyLoaded();
     };
 
     const isSeekable = () => {
@@ -123,19 +136,19 @@
       if (existing) existing.kill();
 
       if (reduceMotion) {
+        ensureVideoFullyLoaded();
         queueSeek(duration);
         syncUi(1);
         return;
       }
 
-      // Pin the fullscreen hero and scrub video across ~350vh of scroll.
       ScrollTrigger.create({
         id: "heroScrub",
         trigger: heroPin,
         start: "top top",
         end: "+=350%",
         pin: true,
-        scrub: 0.4,
+        scrub: 0.45,
         anticipatePin: 1,
         invalidateOnRefresh: true,
         onUpdate: (self) => applyProgress(self.progress),
@@ -144,7 +157,6 @@
 
       ScrollTrigger.refresh();
       applyProgress(0);
-      // Nudge first frame paint
       queueSeek(0.001);
     };
 
@@ -163,8 +175,10 @@
       if (heroPoster) heroPoster.classList.add("is-hidden");
     });
 
-    // If metadata already available
     if (heroVideo.readyState >= 1) onMeta();
+
+    // Desktop: start buffering early for smooth scrub
+    if (!isMobile()) ensureVideoFullyLoaded();
 
     window.addEventListener("load", () => ScrollTrigger.refresh());
     window.addEventListener("resize", () => ScrollTrigger.refresh());
@@ -199,6 +213,12 @@
         navToggle.setAttribute("aria-expanded", "false");
       }
     });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        nav.classList.remove("open");
+        navToggle.setAttribute("aria-expanded", "false");
+      }
+    });
   }
 
   /* In-page nav */
@@ -226,68 +246,41 @@
           }
         });
       },
-      { threshold: 0.16, rootMargin: "0px 0px -8% 0px" }
+      { threshold: 0.14, rootMargin: "0px 0px -6% 0px" }
     );
     reveals.forEach((el) => revealObs.observe(el));
   } else {
     reveals.forEach((el) => el.classList.add("visible"));
   }
 
-  /* Counters */
-  const animateCount = (el) => {
-    const end = Number(el.dataset.count || 0);
-    const durationMs = 1200;
-    const start = performance.now();
-    const tick = (now) => {
-      const t = Math.min((now - start) / durationMs, 1);
-      const eased = 1 - Math.pow(1 - t, 3);
-      el.textContent = toPersianDigits(Math.round(end * eased));
-      if (t < 1) requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-  };
-
-  if ("IntersectionObserver" in window) {
-    const countObs = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            animateCount(entry.target);
-            countObs.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.5 }
-    );
-    counters.forEach((el) => countObs.observe(el));
-  }
-
-  /* Services carousel */
-  if (track && prevBtn && nextBtn) {
-    const step = () => Math.max(track.clientWidth * 0.78, 260);
-    prevBtn.addEventListener("click", () => {
-      track.scrollBy({ left: step(), behavior: "smooth" });
-    });
-    nextBtn.addEventListener("click", () => {
-      track.scrollBy({ left: -step(), behavior: "smooth" });
-    });
-  }
-
-  /* Booking form */
+  /* Booking form → WhatsApp */
   if (bookingForm && formStatus) {
     bookingForm.addEventListener("submit", (event) => {
       event.preventDefault();
       const data = new FormData(bookingForm);
       const name = String(data.get("name") || "").trim();
       const phone = String(data.get("phone") || "").trim();
+      const service = String(data.get("service") || "").trim();
+
       if (!name || !phone) {
         formStatus.textContent = "لطفاً نام و شماره تماس را وارد کنید.";
         formStatus.dataset.state = "error";
+        formStatus.focus();
         return;
       }
-      formStatus.textContent = "درخواست شما ثبت شد. به‌زودی تماس می‌گیریم.";
+
+      const lines = [
+        "درخواست نوبت — کلینیک نخل",
+        `نام: ${name}`,
+        `تماس: ${phone}`,
+      ];
+      if (service) lines.push(`خدمت: ${service}`);
+      const text = encodeURIComponent(lines.join("\n"));
+      const url = `https://wa.me/${WA_NUMBER}?text=${text}`;
+
+      formStatus.textContent = "در حال انتقال به واتساپ برای هماهنگی…";
       formStatus.dataset.state = "ok";
-      bookingForm.reset();
+      window.open(url, "_blank", "noopener,noreferrer");
     });
   }
 
