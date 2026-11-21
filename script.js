@@ -26,11 +26,12 @@
   const FRAME_PATH = (i) =>
     `assets/images/clinic-tour-frames/frame-${String(i).padStart(3, "0")}.jpg`;
 
-  /* GSAP ScrollTrigger hero: visible frame scrub + synced clinic-tour.mp4 */
+  /* GSAP ScrollTrigger: scroll progress → video.currentTime (+ frame canvas) */
   const initHeroScrub = () => {
-    if (!scrollHero || !heroCanvas || typeof gsap === "undefined" || typeof ScrollTrigger === "undefined") {
+    if (!scrollHero || typeof gsap === "undefined" || typeof ScrollTrigger === "undefined") {
       return false;
     }
+    if (!heroVideo && !heroCanvas) return false;
 
     gsap.registerPlugin(ScrollTrigger);
 
@@ -47,10 +48,10 @@
 
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const overlayAt = 0.72;
-    const ctx = heroCanvas.getContext("2d", { alpha: false });
+    const proxy = { progress: 0 };
     const frames = new Array(FRAME_COUNT);
-    const proxy = { frame: 0 };
-    let loaded = 0;
+    const ctx = heroCanvas ? heroCanvas.getContext("2d", { alpha: false }) : null;
+    let framesLoaded = 0;
     let drawn = -1;
     let started = false;
     let seeking = false;
@@ -64,6 +65,7 @@
     };
 
     const fitCanvas = () => {
+      if (!heroCanvas) return;
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       const w = heroCanvas.clientWidth || window.innerWidth;
       const h = heroCanvas.clientHeight || window.innerHeight;
@@ -77,6 +79,7 @@
     };
 
     const drawFrame = (index) => {
+      if (!ctx || !heroCanvas) return false;
       const img = frames[index];
       if (!img || !img.complete || !img.naturalWidth) return false;
       fitCanvas();
@@ -103,6 +106,8 @@
       ctx.fillRect(0, 0, cw, ch);
       ctx.drawImage(img, dx, dy, dw, dh);
       drawn = index;
+      heroCanvas.classList.add("is-ready");
+      if (heroPoster) heroPoster.classList.add("is-hidden");
       return true;
     };
 
@@ -114,10 +119,10 @@
       }
     };
 
-    const syncVideoTime = (progress) => {
+    const applyVideoTime = (progress) => {
       if (!heroVideo || !videoDuration) return;
-      pendingTime = Math.min(Math.max(progress * videoDuration, 0), Math.max(videoDuration - 0.04, 0));
-      if (Math.abs(heroVideo.currentTime - pendingTime) < 0.03) return;
+      pendingTime = Math.min(Math.max(progress * videoDuration, 0), Math.max(videoDuration - 0.001, 0));
+      if (Math.abs(heroVideo.currentTime - pendingTime) < 0.016) return;
       if (seeking) return;
       seeking = true;
       try {
@@ -127,7 +132,11 @@
         clearSeekLock();
         return;
       }
-      seekWatch = window.setTimeout(clearSeekLock, 100);
+      seekWatch = window.setTimeout(() => {
+        seeking = false;
+        seekWatch = 0;
+        if (Math.abs(heroVideo.currentTime - pendingTime) > 0.05) applyVideoTime(progress);
+      }, 90);
     };
 
     if (heroVideo) {
@@ -135,92 +144,111 @@
       const captureDuration = () => {
         if (Number.isFinite(heroVideo.duration) && heroVideo.duration > 0) {
           videoDuration = heroVideo.duration;
+          if (started) ScrollTrigger.refresh();
         }
       };
       heroVideo.addEventListener("loadedmetadata", captureDuration);
       heroVideo.addEventListener("durationchange", captureDuration);
+      heroVideo.addEventListener("loadeddata", () => {
+        captureDuration();
+        // Paint first frame immediately when possible.
+        try {
+          heroVideo.currentTime = 0.001;
+        } catch (_) {
+          /* ignore */
+        }
+        if (heroPoster) heroPoster.classList.add("is-hidden");
+      });
       if (heroVideo.readyState >= 1) captureDuration();
     }
 
-    const showFrame = (raw, progress) => {
-      if (!loaded) return;
-      const index = Math.min(FRAME_COUNT - 1, Math.max(0, Math.round(raw)));
-      if (index !== drawn && drawFrame(index) && heroPoster) {
-        heroPoster.classList.add("is-hidden");
+    const applyProgress = (progress) => {
+      const p = Math.min(Math.max(progress, 0), 1);
+      syncUi(p);
+      applyVideoTime(p);
+      if (framesLoaded > 0) {
+        const index = Math.min(FRAME_COUNT - 1, Math.max(0, Math.round(p * (FRAME_COUNT - 1))));
+        if (index !== drawn) drawFrame(index);
       }
-      syncVideoTime(typeof progress === "number" ? progress : index / Math.max(FRAME_COUNT - 1, 1));
     };
 
     const startScrub = () => {
-      if (started || loaded < 1) return;
+      if (started) {
+        ScrollTrigger.refresh();
+        return;
+      }
       started = true;
-      heroCanvas.classList.add("is-ready");
-      showFrame(0, 0);
 
       const existing = ScrollTrigger.getById("heroScrub");
       if (existing) existing.kill();
 
       if (reduceMotion) {
-        showFrame(FRAME_COUNT - 1, 1);
-        syncUi(1);
+        applyProgress(1);
         return;
       }
 
-      proxy.frame = 0;
+      proxy.progress = 0;
       gsap.to(proxy, {
-        frame: FRAME_COUNT - 1,
+        progress: 1,
         ease: "none",
         scrollTrigger: {
           id: "heroScrub",
           trigger: scrollHero,
           start: "top top",
           end: "bottom bottom",
-          scrub: 0.65,
+          scrub: 0.55,
           invalidateOnRefresh: true,
-          onUpdate: (self) => syncUi(self.progress),
+          anticipatePin: 0,
         },
-        onUpdate: () => {
-          const progress = proxy.frame / Math.max(FRAME_COUNT - 1, 1);
-          showFrame(proxy.frame, progress);
-        },
+        onUpdate: () => applyProgress(proxy.progress),
       });
 
       ScrollTrigger.refresh();
+      applyProgress(0);
     };
 
-    for (let i = 1; i <= FRAME_COUNT; i += 1) {
-      const img = new Image();
-      img.decoding = "async";
-      img.src = FRAME_PATH(i);
-      frames[i - 1] = img;
-      const mark = () => {
-        loaded += 1;
-        if (loaded === 1) {
-          drawFrame(0);
-          heroCanvas.classList.add("is-ready");
-          if (heroPoster) heroPoster.classList.add("is-hidden");
-          startScrub();
-        } else if (loaded === FRAME_COUNT) {
-          ScrollTrigger.refresh();
+    // Frame sequence for smooth visual scrub (same tour as the video).
+    if (heroCanvas) {
+      for (let i = 1; i <= FRAME_COUNT; i += 1) {
+        const img = new Image();
+        img.decoding = "async";
+        img.src = FRAME_PATH(i);
+        frames[i - 1] = img;
+        const mark = () => {
+          framesLoaded += 1;
+          if (framesLoaded === 1) {
+            drawFrame(0);
+            startScrub();
+          } else if (framesLoaded === FRAME_COUNT) {
+            ScrollTrigger.refresh();
+          }
+        };
+        if (img.complete) mark();
+        else {
+          img.addEventListener("load", mark, { once: true });
+          img.addEventListener("error", mark, { once: true });
         }
-      };
-      if (img.complete) mark();
-      else {
-        img.addEventListener("load", mark, { once: true });
-        img.addEventListener("error", mark, { once: true });
       }
+    } else {
+      startScrub();
+    }
+
+    // Also start once video metadata is ready (even if frames are still loading).
+    if (heroVideo) {
+      heroVideo.addEventListener("loadedmetadata", startScrub, { once: true });
+      if (heroVideo.readyState >= 1) startScrub();
     }
 
     window.addEventListener("load", () => ScrollTrigger.refresh());
     window.addEventListener("resize", () => {
       drawn = -1;
-      showFrame(proxy.frame);
+      applyProgress(proxy.progress);
       ScrollTrigger.refresh();
     });
     window.addEventListener("orientationchange", () => {
       setTimeout(() => {
         drawn = -1;
-        showFrame(proxy.frame);
+        applyProgress(proxy.progress);
         ScrollTrigger.refresh();
       }, 250);
     });
@@ -254,7 +282,7 @@
     });
   }
 
-  /* Smooth in-page nav without page-wide CSS scroll-behavior */
+  /* In-page nav (no global scroll lock) */
   navLinks.forEach((link) => {
     link.addEventListener("click", (event) => {
       const id = link.getAttribute("href");

@@ -26,16 +26,26 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 html {
+  height: auto;
+  min-height: 100%;
   scroll-behavior: auto; /* keep ScrollTrigger scrub deterministic */
+  overflow-x: hidden;
+  overflow-y: auto;
+  touch-action: pan-y;
 }
 body {
   margin: 0;
+  min-height: 100%;
+  height: auto;
   font-family: var(--font);
   color: var(--ink);
   background: var(--page);
   line-height: 1.7;
-  overflow-x: clip;
+  overflow-x: hidden;
+  overflow-y: visible;
+  touch-action: pan-y;
   -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: auto;
 }
 img { display: block; max-width: 100%; height: auto; }
 a { color: inherit; text-decoration: none; }
@@ -55,8 +65,8 @@ button, input, select, textarea { font: inherit; }
 /* ===== SCROLL HERO (cinematic scrub) ===== */
 .scroll-hero {
   position: relative;
-  height: 300vh;
-  min-height: 300vh;
+  height: 400vh;
+  min-height: 400vh;
   background: #0b121a;
 }
 
@@ -67,9 +77,19 @@ button, input, select, textarea { font: inherit; }
   height: 100dvh;
   width: 100%;
   max-width: 100%;
-  overflow: hidden;
+  /* clip (not hidden) so wheel/touch scroll is not trapped inside the pin */
+  overflow: clip;
   color: #fff;
   isolation: isolate;
+  touch-action: pan-y;
+  pointer-events: none; /* let page scroll; interactive children re-enable */
+}
+
+.scroll-hero-pin > .scroll-nav,
+.scroll-hero-pin > .scroll-hero-copy.is-on,
+.scroll-hero-pin > .scroll-hero-copy.is-on a,
+.scroll-hero-pin > .scroll-hero-copy.is-on button {
+  pointer-events: auto;
 }
 
 .scroll-hero-video,
@@ -88,7 +108,8 @@ button, input, select, textarea { font: inherit; }
 }
 
 .scroll-hero-video {
-  opacity: 0; /* frames/canvas are the visible scrub layer; video stays loaded for sync */
+  opacity: 1;
+  z-index: 0;
 }
 
 .scroll-hero-canvas {
@@ -113,6 +134,7 @@ button, input, select, textarea { font: inherit; }
   position: absolute;
   inset: 0;
   z-index: 2;
+  pointer-events: none;
   background:
     linear-gradient(180deg, rgba(8, 14, 22, 0.55) 0%, rgba(8, 14, 22, 0.12) 28%, rgba(8, 14, 22, 0.2) 62%, rgba(8, 14, 22, 0.72) 100%),
     linear-gradient(90deg, rgba(8, 14, 22, 0.18) 0%, transparent 42%, rgba(8, 14, 22, 0.45) 100%);
