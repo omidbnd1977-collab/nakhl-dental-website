@@ -1,15 +1,20 @@
-# Sabrina Residences
+# کلینیک دندانپزشکی نخل — دکتر صحرا عباسی
 
-A responsive real-estate landing page: a blue hero with a rising house, word-by-word load animation, and an “Our Latest Houses” gallery.
+وب‌سایت لندینگ فارسی و راست‌چین برای دکتر صحرا عباسی، جراح دندانپزشک با فلوشیپ زیبایی و ترمیمی در کلینیک نخل قشم.
 
-Built with HTML, CSS, and JavaScript only.
+ساخته‌شده با HTML، CSS و JavaScript خالص.
 
-## Run locally
+## اجرای محلی
 
 ```bash
 python3 -m http.server 3847
 ```
 
-Open `http://localhost:3847`.
+سپس `http://localhost:3847` را باز کنید.
 
-The earlier Nakhl clinic page is still available at `nakhl/index.html`.
+## تماس
+
+- واتساپ: `09120153255`
+- تلفن: `07633388181` / `07633387171`
+- اینستاگرام: [@qeshm.clinic.nakhl](https://instagram.com/qeshm.clinic.nakhl)
+- نظام پزشکی: `160198`

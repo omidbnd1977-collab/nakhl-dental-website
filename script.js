@@ -1,89 +1,156 @@
 (() => {
   "use strict";
 
-  const toggle = document.getElementById("navToggle");
-  const menu = document.getElementById("mobileMenu");
-  const video = document.getElementById("heroVideo");
-  const bars = [...document.querySelectorAll(".bar")];
-  const houses = document.getElementById("houses");
-  const langButtons = [...document.querySelectorAll(".lang button")];
+  const nav = document.getElementById("mainNav");
+  const navToggle = document.getElementById("navToggle");
+  const bookingForm = document.getElementById("bookingForm");
+  const formStatus = document.getElementById("formStatus");
+  const track = document.getElementById("servicesTrack");
+  const prevBtn = document.getElementById("svcPrev");
+  const nextBtn = document.getElementById("svcNext");
+  const reveals = document.querySelectorAll(".reveal");
+  const counters = document.querySelectorAll("[data-count]");
+  const navLinks = [...document.querySelectorAll(".nav-links a[href^='#']")];
+  const sections = [...document.querySelectorAll("section[id]")];
 
-  if (toggle && menu) {
-    toggle.addEventListener("click", () => {
-      const open = menu.classList.toggle("open");
-      toggle.setAttribute("aria-expanded", String(open));
+  const toPersianDigits = (value) =>
+    String(value).replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[d]);
+
+  /* Mobile nav */
+  if (navToggle && nav) {
+    navToggle.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const open = nav.classList.toggle("open");
+      navToggle.setAttribute("aria-expanded", String(open));
     });
-    menu.querySelectorAll("a").forEach((link) => {
+
+    nav.querySelectorAll("a").forEach((link) => {
       link.addEventListener("click", () => {
-        menu.classList.remove("open");
-        toggle.setAttribute("aria-expanded", "false");
+        nav.classList.remove("open");
+        navToggle.setAttribute("aria-expanded", "false");
       });
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!nav.classList.contains("open")) return;
+      if (nav.contains(event.target) || navToggle.contains(event.target)) return;
+      nav.classList.remove("open");
+      navToggle.setAttribute("aria-expanded", "false");
     });
   }
 
-  langButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      langButtons.forEach((item) => item.classList.remove("is-active"));
-      button.classList.add("is-active");
-      document.documentElement.lang = button.dataset.lang === "ba" ? "bs" : "en";
+  /* Active nav link */
+  const highlightNav = () => {
+    const offset = window.scrollY + 140;
+    let currentId = "top";
+    for (const section of sections) {
+      if (section.offsetTop <= offset) currentId = section.id;
+    }
+    navLinks.forEach((link) => {
+      link.classList.toggle("is-active", link.getAttribute("href") === `#${currentId}`);
     });
-  });
-
-  const play = () => {
-    if (!video) return;
-    const pending = video.play();
-    if (pending && typeof pending.catch === "function") pending.catch(() => {});
   };
 
-  if (video) {
-    video.muted = true;
-    play();
-    ["pause", "ended", "stalled", "waiting"].forEach((eventName) => {
-      video.addEventListener(eventName, () => {
-        if (eventName === "ended") video.currentTime = 0;
-        play();
-      });
-    });
-    setInterval(() => {
-      if (video.paused || video.ended) play();
-    }, 1000);
-    document.addEventListener("visibilitychange", () => {
-      if (!document.hidden) play();
-    });
-    const resume = () => play();
-    window.addEventListener("pointerdown", resume, { once: true });
+  /* Services carousel */
+  if (prevBtn) prevBtn.addEventListener("click", () => {
+    if (!track) return;
+    const card = track.querySelector(".svc-card");
+    const step = card ? card.getBoundingClientRect().width + 16 : 280;
+    track.scrollBy({ left: step, behavior: "smooth" });
+  });
+  if (nextBtn) nextBtn.addEventListener("click", () => {
+    if (!track) return;
+    const card = track.querySelector(".svc-card");
+    const step = card ? card.getBoundingClientRect().width + 16 : 280;
+    track.scrollBy({ left: -step, behavior: "smooth" });
+  });
 
-    const syncBars = () => {
-      if (!video.duration) return;
-      const index = Math.min(3, Math.floor((video.currentTime / video.duration) * 4));
-      bars.forEach((bar, i) => bar.classList.toggle("is-active", i === index));
-    };
-    video.addEventListener("timeupdate", syncBars);
-    video.addEventListener("loadedmetadata", syncBars);
-
-    bars.forEach((bar) => {
-      bar.addEventListener("click", () => {
-        if (!video.duration) return;
-        const part = Number(bar.dataset.part || 0);
-        video.currentTime = (part / 4) * video.duration;
-        play();
-      });
-    });
-  }
-
-  if (houses && "IntersectionObserver" in window) {
-    const observer = new IntersectionObserver(
+  /* Reveal */
+  if ("IntersectionObserver" in window) {
+    const revealObserver = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (!entry.isIntersecting) return;
-          houses.classList.add("is-in");
-          observer.disconnect();
+          entry.target.classList.add("visible");
+          revealObserver.unobserve(entry.target);
         });
       },
-      { threshold: 0.15 }
+      { threshold: 0.14, rootMargin: "0px 0px -30px 0px" }
     );
-    observer.observe(houses);
-  } else if (houses) {
-    houses.classList.add("is-in");
+    reveals.forEach((el) => revealObserver.observe(el));
+  } else {
+    reveals.forEach((el) => el.classList.add("visible"));
   }
+
+  /* Counters */
+  const animateCounter = (el) => {
+    const target = Number(el.getAttribute("data-count") || 0);
+    const duration = 1400;
+    const start = performance.now();
+    const tick = (now) => {
+      const progress = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      el.textContent = toPersianDigits(Math.round(target * eased));
+      if (progress < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  };
+
+  if ("IntersectionObserver" in window && counters.length) {
+    const counterObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          animateCounter(entry.target);
+          counterObserver.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.45 }
+    );
+    counters.forEach((el) => counterObserver.observe(el));
+  } else {
+    counters.forEach((el) => {
+      el.textContent = toPersianDigits(el.getAttribute("data-count") || "0");
+    });
+  }
+
+  /* Booking form */
+  if (bookingForm && formStatus) {
+    bookingForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      formStatus.classList.remove("error");
+
+      const data = new FormData(bookingForm);
+      const name = String(data.get("name") || "").trim();
+      const phone = String(data.get("phone") || "").trim();
+      const service = String(data.get("service") || "").trim();
+      const message = String(data.get("message") || "").trim();
+
+      if (!name || !phone || !service) {
+        formStatus.textContent = "لطفاً نام، شماره تماس و نوع خدمت را وارد کنید.";
+        formStatus.classList.add("error");
+        formStatus.focus({ preventScroll: true });
+        formStatus.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+
+      const text = [
+        "سلام، درخواست نوبت از وب‌سایت کلینیک نخل:",
+        `نام: ${name}`,
+        `شماره: ${phone}`,
+        `خدمت: ${service}`,
+        message ? `توضیح: ${message}` : null,
+      ]
+        .filter(Boolean)
+        .join("\n");
+
+      formStatus.textContent = "در حال انتقال به واتساپ برای هماهنگی نوبت…";
+      window.open(`https://wa.me/989120153255?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer");
+      bookingForm.reset();
+    });
+  }
+
+  window.addEventListener("scroll", highlightNav, { passive: true });
+  highlightNav();
 })();
