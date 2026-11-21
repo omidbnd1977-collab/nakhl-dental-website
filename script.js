@@ -13,161 +13,176 @@
   const navLinks = [...document.querySelectorAll(".nav-links a[href^='#']")];
   const sections = [...document.querySelectorAll("section[id]")];
   const scrollHero = document.querySelector(".scroll-hero");
-  const heroVideo = document.getElementById("heroScrub");
+  const heroCanvas = document.getElementById("heroScrub");
+  const heroPoster = document.getElementById("heroPoster");
   const heroCopy = document.getElementById("heroCopy");
   const scrollHint = document.getElementById("scrollHint");
 
   const toPersianDigits = (value) =>
     String(value).replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[d]);
 
-  /* GSAP ScrollTrigger cinematic video scrub */
+  const FRAME_COUNT = 74;
+  const FRAME_PATH = (i) =>
+    `assets/images/dolly-frames/frame-${String(i).padStart(3, "0")}.jpg`;
+
+  /* GSAP ScrollTrigger cinematic frame scrub (no video seeking) */
   const initHeroScrub = () => {
-    if (!scrollHero || !heroVideo || typeof gsap === "undefined" || typeof ScrollTrigger === "undefined") {
+    if (!scrollHero || !heroCanvas || typeof gsap === "undefined" || typeof ScrollTrigger === "undefined") {
       return false;
     }
 
     gsap.registerPlugin(ScrollTrigger);
 
-    heroVideo.pause();
-    heroVideo.muted = true;
-    heroVideo.defaultMuted = true;
-    heroVideo.playsInline = true;
-    heroVideo.setAttribute("playsinline", "");
-    heroVideo.setAttribute("webkit-playsinline", "");
-    heroVideo.removeAttribute("controls");
-    heroVideo.removeAttribute("autoplay");
-    heroVideo.preload = "auto";
-
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const overlayAt = 0.72;
-    const proxy = { time: 0 };
-    let duration = 0;
-    let seeking = false;
-    let pendingTime = 0;
-    let rafId = 0;
-    let seekWatch = 0;
+    const ctx = heroCanvas.getContext("2d", { alpha: false });
+    const frames = new Array(FRAME_COUNT);
+    const proxy = { frame: 0 };
+    let loaded = 0;
+    let drawn = -1;
     let started = false;
-
-    const clearSeekLock = () => {
-      seeking = false;
-      if (seekWatch) {
-        clearTimeout(seekWatch);
-        seekWatch = 0;
-      }
-    };
-
-    const clampTime = (time) => {
-      if (!duration) return 0;
-      return Math.min(Math.max(time, 0), Math.max(duration - 0.04, 0));
-    };
-
-    const applyTime = (time) => {
-      if (!duration) return;
-      pendingTime = clampTime(time);
-      if (Math.abs(heroVideo.currentTime - pendingTime) < 0.02) return;
-      if (seeking) return;
-
-      seeking = true;
-      try {
-        heroVideo.pause();
-        heroVideo.currentTime = pendingTime;
-      } catch (_) {
-        clearSeekLock();
-        return;
-      }
-
-      seekWatch = window.setTimeout(() => {
-        seeking = false;
-        seekWatch = 0;
-        if (Math.abs(heroVideo.currentTime - pendingTime) > 0.05) applyTime(pendingTime);
-      }, 90);
-    };
-
-    heroVideo.addEventListener("seeked", () => {
-      clearSeekLock();
-      if (Math.abs(heroVideo.currentTime - pendingTime) > 0.04) applyTime(pendingTime);
-    });
+    let resizeObs = null;
 
     const syncUi = (progress) => {
       if (heroCopy) heroCopy.classList.toggle("is-on", progress >= overlayAt);
       if (scrollHint) scrollHint.classList.toggle("is-gone", progress > 0.04);
     };
 
-    const queueFrame = (time) => {
-      proxy.time = clampTime(time);
-      if (rafId) return;
-      rafId = requestAnimationFrame(() => {
-        rafId = 0;
-        applyTime(proxy.time);
-      });
+    const fitCanvas = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const w = heroCanvas.clientWidth || window.innerWidth;
+      const h = heroCanvas.clientHeight || window.innerHeight;
+      const nextW = Math.max(1, Math.round(w * dpr));
+      const nextH = Math.max(1, Math.round(h * dpr));
+      if (heroCanvas.width !== nextW || heroCanvas.height !== nextH) {
+        heroCanvas.width = nextW;
+        heroCanvas.height = nextH;
+        drawn = -1;
+      }
+    };
+
+    const drawFrame = (index) => {
+      const img = frames[index];
+      if (!img || !img.complete || !img.naturalWidth) return false;
+      fitCanvas();
+      const cw = heroCanvas.width;
+      const ch = heroCanvas.height;
+      const ir = img.naturalWidth / img.naturalHeight;
+      const cr = cw / ch;
+      let dw;
+      let dh;
+      let dx;
+      let dy;
+      if (ir > cr) {
+        dh = ch;
+        dw = ch * ir;
+        dx = (cw - dw) / 2;
+        dy = 0;
+      } else {
+        dw = cw;
+        dh = cw / ir;
+        dx = 0;
+        dy = (ch - dh) / 2;
+      }
+      ctx.fillStyle = "#0b121a";
+      ctx.fillRect(0, 0, cw, ch);
+      ctx.drawImage(img, dx, dy, dw, dh);
+      drawn = index;
+      return true;
+    };
+
+    const showFrame = (raw) => {
+      if (!loaded) return;
+      const index = Math.min(
+        FRAME_COUNT - 1,
+        Math.max(0, Math.round(raw))
+      );
+      if (index === drawn) return;
+      if (drawFrame(index) && heroPoster) heroPoster.classList.add("is-hidden");
     };
 
     const startScrub = () => {
-      if (!Number.isFinite(heroVideo.duration) || heroVideo.duration <= 0) return;
-      duration = heroVideo.duration;
-      if (started) {
-        ScrollTrigger.refresh();
-        return;
-      }
+      if (started || loaded < 1) return;
       started = true;
+      heroCanvas.classList.add("is-ready");
+      showFrame(0);
 
       const existing = ScrollTrigger.getById("heroScrub");
       if (existing) existing.kill();
 
       if (reduceMotion) {
-        applyTime(duration);
+        showFrame(FRAME_COUNT - 1);
         syncUi(1);
         return;
       }
 
-      // Pin via sticky CSS; ScrollTrigger only maps scroll → video time.
-      ScrollTrigger.create({
-        id: "heroScrub",
-        trigger: scrollHero,
-        start: "top top",
-        end: "bottom bottom",
-        scrub: 0.85,
-        invalidateOnRefresh: true,
-        anticipatePin: 1,
-        onUpdate: (self) => {
-          syncUi(self.progress);
-          queueFrame(self.progress * duration);
+      proxy.frame = 0;
+      gsap.to(proxy, {
+        frame: FRAME_COUNT - 1,
+        ease: "none",
+        scrollTrigger: {
+          id: "heroScrub",
+          trigger: scrollHero,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 0.6,
+          invalidateOnRefresh: true,
+          onUpdate: (self) => syncUi(self.progress),
         },
-        onRefresh: (self) => {
-          syncUi(self.progress);
-          queueFrame(self.progress * duration);
-        },
+        onUpdate: () => showFrame(proxy.frame),
       });
 
       ScrollTrigger.refresh();
-      queueFrame(0);
     };
 
-    const warmDecoder = () => {
-      // Tiny nudge helps some mobile browsers unlock frame paints without autoplay.
-      const t = heroVideo.currentTime || 0;
-      try {
-        heroVideo.currentTime = Math.min(t + 0.001, heroVideo.duration || t);
-      } catch (_) {
-        /* ignore */
+    const preload = () => {
+      for (let i = 1; i <= FRAME_COUNT; i += 1) {
+        const img = new Image();
+        img.decoding = "async";
+        img.src = FRAME_PATH(i);
+        frames[i - 1] = img;
+        const mark = () => {
+          loaded += 1;
+          if (loaded === 1) {
+            drawFrame(0);
+            heroCanvas.classList.add("is-ready");
+            if (heroPoster) heroPoster.classList.add("is-hidden");
+            startScrub();
+          } else if (loaded === FRAME_COUNT) {
+            ScrollTrigger.refresh();
+          }
+        };
+        if (img.complete) mark();
+        else {
+          img.addEventListener("load", mark, { once: true });
+          img.addEventListener("error", mark, { once: true });
+        }
       }
     };
 
-    heroVideo.addEventListener("loadedmetadata", startScrub);
-    heroVideo.addEventListener("durationchange", startScrub);
-    heroVideo.addEventListener("loadeddata", () => {
-      startScrub();
-      warmDecoder();
-    });
-    heroVideo.addEventListener("canplay", warmDecoder, { once: true });
+    preload();
 
-    if (heroVideo.readyState >= 1) startScrub();
-
-    // Re-measure after fonts/images settle.
     window.addEventListener("load", () => ScrollTrigger.refresh());
-    window.addEventListener("orientationchange", () => {
-      setTimeout(() => ScrollTrigger.refresh(), 250);
+    window.addEventListener("resize", () => {
+      drawn = -1;
+      showFrame(proxy.frame);
+      ScrollTrigger.refresh();
     });
+    window.addEventListener("orientationchange", () => {
+      setTimeout(() => {
+        drawn = -1;
+        showFrame(proxy.frame);
+        ScrollTrigger.refresh();
+      }, 250);
+    });
+
+    if ("ResizeObserver" in window && scrollHero) {
+      resizeObs = new ResizeObserver(() => {
+        drawn = -1;
+        showFrame(proxy.frame);
+      });
+      resizeObs.observe(scrollHero);
+    }
 
     return true;
   };
@@ -198,7 +213,7 @@
     });
   }
 
-  /* Smooth in-page nav without forcing CSS scroll-behavior on the whole page */
+  /* Smooth in-page nav without page-wide CSS scroll-behavior */
   navLinks.forEach((link) => {
     link.addEventListener("click", (event) => {
       const id = link.getAttribute("href");

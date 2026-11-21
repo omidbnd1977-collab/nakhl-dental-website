@@ -17,19 +17,21 @@
   <!-- ========== SCROLL HERO ========== -->
   <section class="scroll-hero" id="top" aria-label="ورود سینمایی به کلینیک">
     <div class="scroll-hero-pin">
-      <video
+      <canvas
         id="heroScrub"
-        class="scroll-hero-video"
-        src="assets/images/hero-dolly.mp4"
-        muted
-        playsinline
-        webkit-playsinline
-        preload="auto"
-        poster="assets/images/clinic-exterior.jpg"
-        disablepictureinpicture
-        disableremoteplayback
-        crossorigin="anonymous"
-      ></video>
+        class="scroll-hero-canvas"
+        width="1280"
+        height="720"
+        aria-hidden="true"
+      ></canvas>
+      <img
+        id="heroPoster"
+        class="scroll-hero-poster"
+        src="assets/images/dolly-frames/frame-001.jpg"
+        alt=""
+        decoding="async"
+        fetchpriority="high"
+      />
       <div class="scroll-hero-shade" aria-hidden="true"></div>
 
       <header class="nav-wrap scroll-nav">
