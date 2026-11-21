@@ -66,8 +66,7 @@ class RangeHandler(BaseHTTPRequestHandler):
             self.send_header("Content-Range", f"bytes {start}-{end}/{file_size}")
             self.send_header("Content-Length", str(length))
             self.send_header("Cache-Control", "public, max-age=3600")
-            self.send_header("Access-Control-Allow-Origin", "*")
-            self.end_headers()
+                self.end_headers()
             if head_only:
                 return
             with path.open("rb") as handle:
@@ -86,7 +85,6 @@ class RangeHandler(BaseHTTPRequestHandler):
         self.send_header("Accept-Ranges", "bytes")
         self.send_header("Content-Length", str(file_size))
         self.send_header("Cache-Control", "public, max-age=3600")
-        self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
         if head_only:
             return
