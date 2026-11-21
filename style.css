@@ -62,38 +62,26 @@ button, input, select, textarea { font: inherit; }
   gap: 1.15rem;
 }
 
-/* ===== SCROLL HERO (cinematic scrub) ===== */
+/* ===== SCROLL HERO (GSAP-pinned video scrub) ===== */
 .scroll-hero {
   position: relative;
-  height: 400vh;
-  min-height: 400vh;
   background: #0b121a;
+  /* Scroll distance is created by ScrollTrigger pin spacing (~350vh) */
 }
 
 .scroll-hero-pin {
-  position: sticky;
-  top: 0;
+  position: relative;
   height: 100vh;
   height: 100dvh;
   width: 100%;
   max-width: 100%;
-  /* clip (not hidden) so wheel/touch scroll is not trapped inside the pin */
   overflow: clip;
   color: #fff;
   isolation: isolate;
   touch-action: pan-y;
-  pointer-events: none; /* let page scroll; interactive children re-enable */
-}
-
-.scroll-hero-pin > .scroll-nav,
-.scroll-hero-pin > .scroll-hero-copy.is-on,
-.scroll-hero-pin > .scroll-hero-copy.is-on a,
-.scroll-hero-pin > .scroll-hero-copy.is-on button {
-  pointer-events: auto;
 }
 
 .scroll-hero-video,
-.scroll-hero-canvas,
 .scroll-hero-poster {
   position: absolute;
   inset: 0;
@@ -103,8 +91,6 @@ button, input, select, textarea { font: inherit; }
   object-position: center center;
   z-index: 0;
   pointer-events: none;
-  transform: translateZ(0);
-  backface-visibility: hidden;
 }
 
 .scroll-hero-video {
@@ -112,22 +98,14 @@ button, input, select, textarea { font: inherit; }
   z-index: 0;
 }
 
-.scroll-hero-canvas {
-  opacity: 0;
-  z-index: 1;
-}
-
-.scroll-hero-canvas.is-ready {
-  opacity: 1;
-}
-
 .scroll-hero-poster {
   z-index: 1;
-  transition: opacity 0.25s ease;
+  transition: opacity 0.3s ease;
 }
 
 .scroll-hero-poster.is-hidden {
   opacity: 0;
+  visibility: hidden;
 }
 
 .scroll-hero-shade {
@@ -138,7 +116,6 @@ button, input, select, textarea { font: inherit; }
   background:
     linear-gradient(180deg, rgba(8, 14, 22, 0.55) 0%, rgba(8, 14, 22, 0.12) 28%, rgba(8, 14, 22, 0.2) 62%, rgba(8, 14, 22, 0.72) 100%),
     linear-gradient(90deg, rgba(8, 14, 22, 0.18) 0%, transparent 42%, rgba(8, 14, 22, 0.45) 100%);
-  transition: opacity 0.6s ease;
 }
 
 .scroll-nav {

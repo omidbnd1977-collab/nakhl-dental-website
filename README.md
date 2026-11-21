@@ -4,7 +4,7 @@
 
 این پروژه یک **وب‌سایت استاتیک عمومی** است (نه داشبورد و نه اپ لاگین‌دار): ریشه ریپو همان صفحهٔ اصلی است (`index.html`).
 
-هیرو: اسکراب سینمایی با GSAP ScrollTrigger روی `assets/videos/clinic-tour.mp4` (تمام‌صفحه، sticky، بدون autoplay). اسکرول پایین ویدیو را جلو می‌برد و اسکرول بالا عقب می‌کشد.
+هیرو: اسکراب سینمایی با GSAP ScrollTrigger روی `assets/videos/clinic-tour.mp4` (تمام‌صفحه، pin شده، بدون autoplay). `progress` مستقیماً به `video.currentTime` نگاشت می‌شود.
 
 ## اجرای محلی
 

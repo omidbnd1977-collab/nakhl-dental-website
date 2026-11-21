@@ -13,8 +13,8 @@
   const navLinks = [...document.querySelectorAll(".nav-links a[href^='#']")];
   const sections = [...document.querySelectorAll("section[id]")];
   const scrollHero = document.querySelector(".scroll-hero");
+  const heroPin = document.querySelector(".scroll-hero-pin");
   const heroVideo = document.getElementById("heroScrubVideo");
-  const heroCanvas = document.getElementById("heroScrub");
   const heroPoster = document.getElementById("heroPoster");
   const heroCopy = document.getElementById("heroCopy");
   const scrollHint = document.getElementById("scrollHint");
@@ -22,157 +22,91 @@
   const toPersianDigits = (value) =>
     String(value).replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[d]);
 
-  const FRAME_COUNT = 61;
-  const FRAME_PATH = (i) =>
-    `assets/images/clinic-tour-frames/frame-${String(i).padStart(3, "0")}.jpg`;
-
-  /* GSAP ScrollTrigger: scroll progress → video.currentTime (+ frame canvas) */
+  /* GSAP ScrollTrigger pin + video.currentTime scrub */
   const initHeroScrub = () => {
-    if (!scrollHero || typeof gsap === "undefined" || typeof ScrollTrigger === "undefined") {
-      return false;
-    }
-    if (!heroVideo && !heroCanvas) return false;
+    if (!scrollHero || !heroPin || !heroVideo) return false;
+    if (typeof gsap === "undefined" || typeof ScrollTrigger === "undefined") return false;
 
     gsap.registerPlugin(ScrollTrigger);
 
-    if (heroVideo) {
-      heroVideo.pause();
-      heroVideo.muted = true;
-      heroVideo.defaultMuted = true;
-      heroVideo.playsInline = true;
-      heroVideo.setAttribute("playsinline", "");
-      heroVideo.removeAttribute("autoplay");
-      heroVideo.removeAttribute("controls");
-      heroVideo.preload = "auto";
-    }
+    // Kill any previous hero triggers to avoid duplicates
+    ScrollTrigger.getAll().forEach((st) => {
+      if (st.vars && st.vars.id === "heroScrub") st.kill();
+    });
+    const byId = ScrollTrigger.getById("heroScrub");
+    if (byId) byId.kill();
+
+    heroVideo.pause();
+    heroVideo.muted = true;
+    heroVideo.defaultMuted = true;
+    heroVideo.playsInline = true;
+    heroVideo.setAttribute("playsinline", "");
+    heroVideo.removeAttribute("autoplay");
+    heroVideo.removeAttribute("controls");
+    heroVideo.preload = "auto";
 
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const overlayAt = 0.72;
-    const proxy = { progress: 0 };
-    const frames = new Array(FRAME_COUNT);
-    const ctx = heroCanvas ? heroCanvas.getContext("2d", { alpha: false }) : null;
-    let framesLoaded = 0;
-    let drawn = -1;
+    let duration = 0;
+    let ready = false;
     let started = false;
-    let seeking = false;
     let pendingTime = 0;
-    let seekWatch = 0;
-    let videoDuration = 0;
+    let rafId = 0;
+    let lastApplied = -1;
 
     const syncUi = (progress) => {
       if (heroCopy) heroCopy.classList.toggle("is-on", progress >= overlayAt);
       if (scrollHint) scrollHint.classList.toggle("is-gone", progress > 0.04);
     };
 
-    const fitCanvas = () => {
-      if (!heroCanvas) return;
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const w = heroCanvas.clientWidth || window.innerWidth;
-      const h = heroCanvas.clientHeight || window.innerHeight;
-      const nextW = Math.max(1, Math.round(w * dpr));
-      const nextH = Math.max(1, Math.round(h * dpr));
-      if (heroCanvas.width !== nextW || heroCanvas.height !== nextH) {
-        heroCanvas.width = nextW;
-        heroCanvas.height = nextH;
-        drawn = -1;
-      }
-    };
-
-    const drawFrame = (index) => {
-      if (!ctx || !heroCanvas) return false;
-      const img = frames[index];
-      if (!img || !img.complete || !img.naturalWidth) return false;
-      fitCanvas();
-      const cw = heroCanvas.width;
-      const ch = heroCanvas.height;
-      const ir = img.naturalWidth / img.naturalHeight;
-      const cr = cw / ch;
-      let dw;
-      let dh;
-      let dx;
-      let dy;
-      if (ir > cr) {
-        dh = ch;
-        dw = ch * ir;
-        dx = (cw - dw) / 2;
-        dy = 0;
-      } else {
-        dw = cw;
-        dh = cw / ir;
-        dx = 0;
-        dy = (ch - dh) / 2;
-      }
-      ctx.fillStyle = "#0b121a";
-      ctx.fillRect(0, 0, cw, ch);
-      ctx.drawImage(img, dx, dy, dw, dh);
-      drawn = index;
-      heroCanvas.classList.add("is-ready");
-      if (heroPoster) heroPoster.classList.add("is-hidden");
-      return true;
-    };
-
-    const clearSeekLock = () => {
-      seeking = false;
-      if (seekWatch) {
-        clearTimeout(seekWatch);
-        seekWatch = 0;
-      }
-    };
-
-    const applyVideoTime = (progress) => {
-      if (!heroVideo || !videoDuration) return;
-      pendingTime = Math.min(Math.max(progress * videoDuration, 0), Math.max(videoDuration - 0.001, 0));
-      if (Math.abs(heroVideo.currentTime - pendingTime) < 0.016) return;
-      if (seeking) return;
-      seeking = true;
+    const isSeekable = () => {
+      if (!Number.isFinite(duration) || duration <= 0) return false;
+      if (heroVideo.readyState < 1) return false;
       try {
-        heroVideo.pause();
-        heroVideo.currentTime = pendingTime;
+        return heroVideo.seekable && heroVideo.seekable.length > 0;
       } catch (_) {
-        clearSeekLock();
+        return heroVideo.readyState >= 2;
+      }
+    };
+
+    const clampTime = (t) => Math.min(Math.max(t, 0), Math.max(duration - 0.05, 0));
+
+    const flushSeek = () => {
+      rafId = 0;
+      if (!ready || !isSeekable()) return;
+      const target = clampTime(pendingTime);
+      if (Math.abs(heroVideo.currentTime - target) < 0.02 && Math.abs(lastApplied - target) < 0.02) {
         return;
       }
-      seekWatch = window.setTimeout(() => {
-        seeking = false;
-        seekWatch = 0;
-        if (Math.abs(heroVideo.currentTime - pendingTime) > 0.05) applyVideoTime(progress);
-      }, 90);
+      try {
+        heroVideo.pause();
+        heroVideo.currentTime = target;
+        lastApplied = target;
+        if (heroPoster) heroPoster.classList.add("is-hidden");
+      } catch (_) {
+        /* seek may fail until more data buffers */
+      }
     };
 
-    if (heroVideo) {
-      heroVideo.addEventListener("seeked", clearSeekLock);
-      const captureDuration = () => {
-        if (Number.isFinite(heroVideo.duration) && heroVideo.duration > 0) {
-          videoDuration = heroVideo.duration;
-          if (started) ScrollTrigger.refresh();
-        }
-      };
-      heroVideo.addEventListener("loadedmetadata", captureDuration);
-      heroVideo.addEventListener("durationchange", captureDuration);
-      heroVideo.addEventListener("loadeddata", () => {
-        captureDuration();
-        // Paint first frame immediately when possible.
-        try {
-          heroVideo.currentTime = 0.001;
-        } catch (_) {
-          /* ignore */
-        }
-        if (heroPoster) heroPoster.classList.add("is-hidden");
-      });
-      if (heroVideo.readyState >= 1) captureDuration();
-    }
+    const queueSeek = (time) => {
+      pendingTime = time;
+      if (rafId) return;
+      rafId = requestAnimationFrame(flushSeek);
+    };
 
     const applyProgress = (progress) => {
       const p = Math.min(Math.max(progress, 0), 1);
       syncUi(p);
-      applyVideoTime(p);
-      if (framesLoaded > 0) {
-        const index = Math.min(FRAME_COUNT - 1, Math.max(0, Math.round(p * (FRAME_COUNT - 1))));
-        if (index !== drawn) drawFrame(index);
-      }
+      if (!ready || !duration) return;
+      queueSeek(p * duration);
     };
 
     const startScrub = () => {
+      duration = heroVideo.duration;
+      if (!Number.isFinite(duration) || duration <= 0) return;
+      if (!isSeekable() && heroVideo.readyState < 2) return;
+
+      ready = true;
       if (started) {
         ScrollTrigger.refresh();
         return;
@@ -183,74 +117,53 @@
       if (existing) existing.kill();
 
       if (reduceMotion) {
-        applyProgress(1);
+        queueSeek(duration);
+        syncUi(1);
         return;
       }
 
-      proxy.progress = 0;
-      gsap.to(proxy, {
-        progress: 1,
-        ease: "none",
-        scrollTrigger: {
-          id: "heroScrub",
-          trigger: scrollHero,
-          start: "top top",
-          end: "bottom bottom",
-          scrub: 0.55,
-          invalidateOnRefresh: true,
-          anticipatePin: 0,
-        },
-        onUpdate: () => applyProgress(proxy.progress),
+      // Pin the fullscreen hero and scrub video across ~350vh of scroll.
+      ScrollTrigger.create({
+        id: "heroScrub",
+        trigger: heroPin,
+        start: "top top",
+        end: "+=350%",
+        pin: true,
+        scrub: 0.4,
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
+        onUpdate: (self) => applyProgress(self.progress),
+        onRefresh: (self) => applyProgress(self.progress),
       });
 
       ScrollTrigger.refresh();
       applyProgress(0);
+      // Nudge first frame paint
+      queueSeek(0.001);
     };
 
-    // Frame sequence for smooth visual scrub (same tour as the video).
-    if (heroCanvas) {
-      for (let i = 1; i <= FRAME_COUNT; i += 1) {
-        const img = new Image();
-        img.decoding = "async";
-        img.src = FRAME_PATH(i);
-        frames[i - 1] = img;
-        const mark = () => {
-          framesLoaded += 1;
-          if (framesLoaded === 1) {
-            drawFrame(0);
-            startScrub();
-          } else if (framesLoaded === FRAME_COUNT) {
-            ScrollTrigger.refresh();
-          }
-        };
-        if (img.complete) mark();
-        else {
-          img.addEventListener("load", mark, { once: true });
-          img.addEventListener("error", mark, { once: true });
-        }
+    const onMeta = () => {
+      if (Number.isFinite(heroVideo.duration) && heroVideo.duration > 0) {
+        duration = heroVideo.duration;
       }
-    } else {
-      startScrub();
-    }
+      if (isSeekable() || heroVideo.readyState >= 2) startScrub();
+    };
 
-    // Also start once video metadata is ready (even if frames are still loading).
-    if (heroVideo) {
-      heroVideo.addEventListener("loadedmetadata", startScrub, { once: true });
-      if (heroVideo.readyState >= 1) startScrub();
-    }
+    heroVideo.addEventListener("loadedmetadata", onMeta);
+    heroVideo.addEventListener("durationchange", onMeta);
+    heroVideo.addEventListener("loadeddata", onMeta);
+    heroVideo.addEventListener("canplay", onMeta);
+    heroVideo.addEventListener("seeked", () => {
+      if (heroPoster) heroPoster.classList.add("is-hidden");
+    });
+
+    // If metadata already available
+    if (heroVideo.readyState >= 1) onMeta();
 
     window.addEventListener("load", () => ScrollTrigger.refresh());
-    window.addEventListener("resize", () => {
-      drawn = -1;
-      applyProgress(proxy.progress);
-      ScrollTrigger.refresh();
-    });
+    window.addEventListener("resize", () => ScrollTrigger.refresh());
     window.addEventListener("orientationchange", () => {
-      setTimeout(() => {
-        drawn = -1;
-        applyProgress(proxy.progress);
-        ScrollTrigger.refresh();
-      }, 250);
+      setTimeout(() => ScrollTrigger.refresh(), 250);
     });
 
     return true;
@@ -261,7 +174,7 @@
     let tries = 0;
     const timer = setInterval(() => {
       tries += 1;
-      if (initHeroScrub() || tries > 60) clearInterval(timer);
+      if (initHeroScrub() || tries > 80) clearInterval(timer);
     }, 50);
   };
   bootHero();
@@ -282,7 +195,7 @@
     });
   }
 
-  /* In-page nav (no global scroll lock) */
+  /* In-page nav */
   navLinks.forEach((link) => {
     link.addEventListener("click", (event) => {
       const id = link.getAttribute("href");
@@ -317,10 +230,10 @@
   /* Counters */
   const animateCount = (el) => {
     const end = Number(el.dataset.count || 0);
-    const duration = 1200;
+    const durationMs = 1200;
     const start = performance.now();
     const tick = (now) => {
-      const t = Math.min((now - start) / duration, 1);
+      const t = Math.min((now - start) / durationMs, 1);
       const eased = 1 - Math.pow(1 - t, 3);
       el.textContent = toPersianDigits(Math.round(end * eased));
       if (t < 1) requestAnimationFrame(tick);
