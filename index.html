@@ -10,8 +10,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
   <link rel="icon" href="assets/images/logo.svg" type="image/svg+xml" />
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
+  <script src="vendor/gsap.min.js" defer></script>
+  <script src="vendor/ScrollTrigger.min.js" defer></script>
 </head>
 <body>
   <!-- ========== SCROLL HERO ========== -->
@@ -23,10 +23,12 @@
         src="assets/images/hero-dolly.mp4"
         muted
         playsinline
+        webkit-playsinline
         preload="auto"
         poster="assets/images/clinic-exterior.jpg"
         disablepictureinpicture
         disableremoteplayback
+        crossorigin="anonymous"
       ></video>
       <div class="scroll-hero-shade" aria-hidden="true"></div>
 

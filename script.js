@@ -30,8 +30,13 @@
 
     heroVideo.pause();
     heroVideo.muted = true;
+    heroVideo.defaultMuted = true;
     heroVideo.playsInline = true;
+    heroVideo.setAttribute("playsinline", "");
+    heroVideo.setAttribute("webkit-playsinline", "");
+    heroVideo.removeAttribute("controls");
     heroVideo.removeAttribute("autoplay");
+    heroVideo.preload = "auto";
 
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const overlayAt = 0.72;
@@ -41,6 +46,7 @@
     let pendingTime = 0;
     let rafId = 0;
     let seekWatch = 0;
+    let started = false;
 
     const clearSeekLock = () => {
       seeking = false;
@@ -50,93 +56,118 @@
       }
     };
 
+    const clampTime = (time) => {
+      if (!duration) return 0;
+      return Math.min(Math.max(time, 0), Math.max(duration - 0.04, 0));
+    };
+
     const applyTime = (time) => {
       if (!duration) return;
-      pendingTime = Math.min(Math.max(time, 0), duration - 0.001);
-      if (Math.abs(heroVideo.currentTime - pendingTime) < 0.016) return;
+      pendingTime = clampTime(time);
+      if (Math.abs(heroVideo.currentTime - pendingTime) < 0.02) return;
       if (seeking) return;
 
       seeking = true;
       try {
+        heroVideo.pause();
         heroVideo.currentTime = pendingTime;
       } catch (_) {
         clearSeekLock();
         return;
       }
 
-      // Some browsers delay or skip seeked; never leave the scrub locked.
       seekWatch = window.setTimeout(() => {
         seeking = false;
         seekWatch = 0;
-        if (Math.abs(heroVideo.currentTime - pendingTime) > 0.04) applyTime(pendingTime);
-      }, 120);
+        if (Math.abs(heroVideo.currentTime - pendingTime) > 0.05) applyTime(pendingTime);
+      }, 90);
     };
 
     heroVideo.addEventListener("seeked", () => {
       clearSeekLock();
-      if (Math.abs(heroVideo.currentTime - pendingTime) > 0.03) applyTime(pendingTime);
+      if (Math.abs(heroVideo.currentTime - pendingTime) > 0.04) applyTime(pendingTime);
     });
 
     const syncUi = (progress) => {
       if (heroCopy) heroCopy.classList.toggle("is-on", progress >= overlayAt);
-      if (scrollHint) scrollHint.classList.toggle("is-gone", progress > 0.05);
+      if (scrollHint) scrollHint.classList.toggle("is-gone", progress > 0.04);
+    };
+
+    const queueFrame = (time) => {
+      proxy.time = clampTime(time);
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = 0;
+        applyTime(proxy.time);
+      });
     };
 
     const startScrub = () => {
-      duration = heroVideo.duration || 0;
-      if (!duration) return;
+      if (!Number.isFinite(heroVideo.duration) || heroVideo.duration <= 0) return;
+      duration = heroVideo.duration;
+      if (started) {
+        ScrollTrigger.refresh();
+        return;
+      }
+      started = true;
 
       const existing = ScrollTrigger.getById("heroScrub");
       if (existing) existing.kill();
 
       if (reduceMotion) {
-        heroVideo.currentTime = Math.max(duration - 0.05, 0);
+        applyTime(duration);
         syncUi(1);
         return;
       }
 
-      proxy.time = heroVideo.currentTime || 0;
-      gsap.to(proxy, {
-        time: duration - 0.001,
-        ease: "none",
-        scrollTrigger: {
-          id: "heroScrub",
-          trigger: scrollHero,
-          start: "top top",
-          end: "bottom bottom",
-          scrub: 1.2,
-          invalidateOnRefresh: true,
-          onUpdate: (self) => syncUi(self.progress),
+      // Pin via sticky CSS; ScrollTrigger only maps scroll → video time.
+      ScrollTrigger.create({
+        id: "heroScrub",
+        trigger: scrollHero,
+        start: "top top",
+        end: "bottom bottom",
+        scrub: 0.85,
+        invalidateOnRefresh: true,
+        anticipatePin: 1,
+        onUpdate: (self) => {
+          syncUi(self.progress);
+          queueFrame(self.progress * duration);
         },
-        onUpdate: () => {
-          if (rafId) return;
-          rafId = requestAnimationFrame(() => {
-            rafId = 0;
-            applyTime(proxy.time);
-          });
+        onRefresh: (self) => {
+          syncUi(self.progress);
+          queueFrame(self.progress * duration);
         },
       });
 
       ScrollTrigger.refresh();
+      queueFrame(0);
     };
 
-    const ready = () => {
-      if (heroVideo.readyState >= 1) startScrub();
-    };
-
-    heroVideo.addEventListener("loadedmetadata", ready, { once: true });
-    heroVideo.addEventListener("loadeddata", ready, { once: true });
-    if (heroVideo.readyState >= 1) ready();
-
-    // Keep decoder warm without autoplaying content
-    heroVideo.addEventListener(
-      "canplay",
-      () => {
-        const t = heroVideo.currentTime;
+    const warmDecoder = () => {
+      // Tiny nudge helps some mobile browsers unlock frame paints without autoplay.
+      const t = heroVideo.currentTime || 0;
+      try {
         heroVideo.currentTime = Math.min(t + 0.001, heroVideo.duration || t);
-      },
-      { once: true }
-    );
+      } catch (_) {
+        /* ignore */
+      }
+    };
+
+    heroVideo.addEventListener("loadedmetadata", startScrub);
+    heroVideo.addEventListener("durationchange", startScrub);
+    heroVideo.addEventListener("loadeddata", () => {
+      startScrub();
+      warmDecoder();
+    });
+    heroVideo.addEventListener("canplay", warmDecoder, { once: true });
+
+    if (heroVideo.readyState >= 1) startScrub();
+
+    // Re-measure after fonts/images settle.
+    window.addEventListener("load", () => ScrollTrigger.refresh());
+    window.addEventListener("orientationchange", () => {
+      setTimeout(() => ScrollTrigger.refresh(), 250);
+    });
 
     return true;
   };
@@ -146,7 +177,7 @@
     let tries = 0;
     const timer = setInterval(() => {
       tries += 1;
-      if (initHeroScrub() || tries > 40) clearInterval(timer);
+      if (initHeroScrub() || tries > 60) clearInterval(timer);
     }, 50);
   };
   bootHero();
@@ -159,94 +190,83 @@
       const open = nav.classList.toggle("open");
       navToggle.setAttribute("aria-expanded", String(open));
     });
-
-    nav.querySelectorAll("a").forEach((link) => {
-      link.addEventListener("click", () => {
+    document.addEventListener("click", (event) => {
+      if (!nav.contains(event.target) && !navToggle.contains(event.target)) {
         nav.classList.remove("open");
         navToggle.setAttribute("aria-expanded", "false");
-      });
-    });
-
-    document.addEventListener("click", (event) => {
-      if (!nav.classList.contains("open")) return;
-      if (nav.contains(event.target) || navToggle.contains(event.target)) return;
-      nav.classList.remove("open");
-      navToggle.setAttribute("aria-expanded", "false");
+      }
     });
   }
 
-  /* Active nav link */
-  const highlightNav = () => {
-    const offset = window.scrollY + 140;
-    let currentId = "top";
-    for (const section of sections) {
-      if (section.offsetTop <= offset) currentId = section.id;
-    }
-    navLinks.forEach((link) => {
-      link.classList.toggle("is-active", link.getAttribute("href") === `#${currentId}`);
+  /* Smooth in-page nav without forcing CSS scroll-behavior on the whole page */
+  navLinks.forEach((link) => {
+    link.addEventListener("click", (event) => {
+      const id = link.getAttribute("href");
+      if (!id || !id.startsWith("#")) return;
+      const target = document.querySelector(id);
+      if (!target) return;
+      event.preventDefault();
+      nav?.classList.remove("open");
+      navToggle?.setAttribute("aria-expanded", "false");
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
     });
-  };
-
-  /* Services carousel */
-  if (prevBtn) prevBtn.addEventListener("click", () => {
-    if (!track) return;
-    const card = track.querySelector(".svc-card");
-    const step = card ? card.getBoundingClientRect().width + 16 : 280;
-    track.scrollBy({ left: step, behavior: "smooth" });
-  });
-  if (nextBtn) nextBtn.addEventListener("click", () => {
-    if (!track) return;
-    const card = track.querySelector(".svc-card");
-    const step = card ? card.getBoundingClientRect().width + 16 : 280;
-    track.scrollBy({ left: -step, behavior: "smooth" });
   });
 
-  /* Reveal */
+  /* Reveal on scroll */
   if ("IntersectionObserver" in window) {
-    const revealObserver = new IntersectionObserver(
+    const revealObs = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          entry.target.classList.add("visible");
-          revealObserver.unobserve(entry.target);
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+            revealObs.unobserve(entry.target);
+          }
         });
       },
-      { threshold: 0.14, rootMargin: "0px 0px -30px 0px" }
+      { threshold: 0.16, rootMargin: "0px 0px -8% 0px" }
     );
-    reveals.forEach((el) => revealObserver.observe(el));
+    reveals.forEach((el) => revealObs.observe(el));
   } else {
     reveals.forEach((el) => el.classList.add("visible"));
   }
 
   /* Counters */
-  const animateCounter = (el) => {
-    const target = Number(el.getAttribute("data-count") || 0);
-    const duration = 1400;
+  const animateCount = (el) => {
+    const end = Number(el.dataset.count || 0);
+    const duration = 1200;
     const start = performance.now();
     const tick = (now) => {
-      const progress = Math.min((now - start) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      el.textContent = toPersianDigits(Math.round(target * eased));
-      if (progress < 1) requestAnimationFrame(tick);
+      const t = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - t, 3);
+      el.textContent = toPersianDigits(Math.round(end * eased));
+      if (t < 1) requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
   };
 
-  if ("IntersectionObserver" in window && counters.length) {
-    const counterObserver = new IntersectionObserver(
+  if ("IntersectionObserver" in window) {
+    const countObs = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          animateCounter(entry.target);
-          counterObserver.unobserve(entry.target);
+          if (entry.isIntersecting) {
+            animateCount(entry.target);
+            countObs.unobserve(entry.target);
+          }
         });
       },
-      { threshold: 0.45 }
+      { threshold: 0.5 }
     );
-    counters.forEach((el) => counterObserver.observe(el));
-  } else {
-    counters.forEach((el) => {
-      el.textContent = toPersianDigits(el.getAttribute("data-count") || "0");
+    counters.forEach((el) => countObs.observe(el));
+  }
+
+  /* Services carousel */
+  if (track && prevBtn && nextBtn) {
+    const step = () => Math.max(track.clientWidth * 0.78, 260);
+    prevBtn.addEventListener("click", () => {
+      track.scrollBy({ left: step(), behavior: "smooth" });
+    });
+    nextBtn.addEventListener("click", () => {
+      track.scrollBy({ left: -step(), behavior: "smooth" });
     });
   }
 
@@ -254,38 +274,31 @@
   if (bookingForm && formStatus) {
     bookingForm.addEventListener("submit", (event) => {
       event.preventDefault();
-      formStatus.classList.remove("error");
-
       const data = new FormData(bookingForm);
       const name = String(data.get("name") || "").trim();
       const phone = String(data.get("phone") || "").trim();
-      const service = String(data.get("service") || "").trim();
-      const message = String(data.get("message") || "").trim();
-
-      if (!name || !phone || !service) {
-        formStatus.textContent = "لطفاً نام، شماره تماس و نوع خدمت را وارد کنید.";
-        formStatus.classList.add("error");
-        formStatus.focus({ preventScroll: true });
-        formStatus.scrollIntoView({ behavior: "smooth", block: "center" });
+      if (!name || !phone) {
+        formStatus.textContent = "لطفاً نام و شماره تماس را وارد کنید.";
+        formStatus.dataset.state = "error";
         return;
       }
-
-      const text = [
-        "سلام، درخواست نوبت از وب‌سایت کلینیک نخل:",
-        `نام: ${name}`,
-        `شماره: ${phone}`,
-        `خدمت: ${service}`,
-        message ? `توضیح: ${message}` : null,
-      ]
-        .filter(Boolean)
-        .join("\n");
-
-      formStatus.textContent = "در حال انتقال به واتساپ برای هماهنگی نوبت…";
-      window.open(`https://wa.me/989120153255?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer");
+      formStatus.textContent = "درخواست شما ثبت شد. به‌زودی تماس می‌گیریم.";
+      formStatus.dataset.state = "ok";
       bookingForm.reset();
     });
   }
 
+  /* Active nav highlight */
+  const highlightNav = () => {
+    const y = window.scrollY + window.innerHeight * 0.28;
+    let current = "top";
+    sections.forEach((section) => {
+      if (section.offsetTop <= y) current = section.id;
+    });
+    navLinks.forEach((link) => {
+      link.classList.toggle("is-active", link.getAttribute("href") === `#${current}`);
+    });
+  };
   window.addEventListener("scroll", highlightNav, { passive: true });
   highlightNav();
 })();

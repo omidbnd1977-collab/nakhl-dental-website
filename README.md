@@ -7,10 +7,10 @@
 ## اجرا
 
 ```bash
-python3 -m http.server 3847
+python3 serve.py --port 3847
 ```
 
-`http://localhost:3847`
+`http://localhost:3847` — سرور محلی از HTTP Range پشتیبانی می‌کند تا اسکراب ویدیو دقیق باشد.
 
 ## تماس
 
