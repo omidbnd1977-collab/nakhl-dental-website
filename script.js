@@ -43,7 +43,13 @@
     heroVideo.setAttribute("playsinline", "");
     heroVideo.removeAttribute("autoplay");
     heroVideo.removeAttribute("controls");
+    // Full buffer helps scrub seeking; file is optimized (~2MB).
     heroVideo.preload = "auto";
+    try {
+      heroVideo.load();
+    } catch (_) {
+      /* ignore */
+    }
 
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const overlayAt = 0.72;

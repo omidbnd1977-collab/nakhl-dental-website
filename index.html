@@ -7,8 +7,10 @@
   <title>دکتر صحرا عباسی | کلینیک دندانپزشکی نخل</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+  <link rel="preload" as="image" href="assets/images/clinic-tour-poster.webp" type="image/webp" fetchpriority="high" />
+  <link rel="preload" as="video" href="assets/videos/clinic-tour.mp4" type="video/mp4" />
+  <link rel="stylesheet" href="style.min.css" />
   <link rel="icon" href="assets/images/logo.svg" type="image/svg+xml" />
   <script src="vendor/gsap.min.js" defer></script>
   <script src="vendor/ScrollTrigger.min.js" defer></script>
@@ -29,14 +31,19 @@
         disablepictureinpicture
         disableremoteplayback
       ></video>
-      <img
-        id="heroPoster"
-        class="scroll-hero-poster"
-        src="assets/images/clinic-tour-poster.jpg"
-        alt=""
-        decoding="async"
-        fetchpriority="high"
-      />
+      <picture>
+        <source srcset="assets/images/clinic-tour-poster.webp" type="image/webp" />
+        <img
+          id="heroPoster"
+          class="scroll-hero-poster"
+          src="assets/images/clinic-tour-poster.jpg"
+          alt=""
+          width="1280"
+          height="962"
+          decoding="async"
+          fetchpriority="high"
+        />
+      </picture>
       <div class="scroll-hero-shade" aria-hidden="true"></div>
 
       <header class="nav-wrap scroll-nav">
@@ -109,28 +116,48 @@
         <div class="services-track-wrap">
           <div class="services-track" id="servicesTrack">
             <article class="svc-card">
-              <div class="svc-img"><img src="assets/images/service-smile.jpg" alt="دندانپزشکی زیبایی" /></div>
+              <div class="svc-img">
+                <picture>
+                  <source srcset="assets/images/service-smile.webp" type="image/webp" />
+                  <img src="assets/images/service-smile.jpg" alt="دندانپزشکی زیبایی" width="700" height="880" loading="lazy" decoding="async" />
+                </picture>
+              </div>
               <h3>دندانپزشکی زیبایی</h3>
               <p>طراحی لبخند، کامپوزیت و لمینت با فلوشیپ زیبایی و ترمیمی.</p>
               <a class="svc-arrow" href="#contact" aria-label="رزرو زیبایی">←</a>
             </article>
 
             <article class="svc-card">
-              <div class="svc-img"><img src="assets/images/service-implant.jpg" alt="ایمپلنت دندان" /></div>
+              <div class="svc-img">
+                <picture>
+                  <source srcset="assets/images/service-implant.webp" type="image/webp" />
+                  <img src="assets/images/service-implant.jpg" alt="ایمپلنت دندان" width="700" height="880" loading="lazy" decoding="async" />
+                </picture>
+              </div>
               <h3>ایمپلنت</h3>
               <p>جایگزینی دندان از دست‌رفته و بازسازی عملکرد جویدن با دقت بالا.</p>
               <a class="svc-arrow" href="#contact" aria-label="رزرو ایمپلنت">←</a>
             </article>
 
             <article class="svc-card">
-              <div class="svc-img"><img src="assets/images/service-aligners.jpg" alt="ارتودنسی" /></div>
+              <div class="svc-img">
+                <picture>
+                  <source srcset="assets/images/service-aligners.webp" type="image/webp" />
+                  <img src="assets/images/service-aligners.jpg" alt="ارتودنسی" width="700" height="880" loading="lazy" decoding="async" />
+                </picture>
+              </div>
               <h3>ارتودنسی</h3>
               <p>مرتب‌سازی و هم‌ترازی دندان‌ها برای لبخندی متعادل و طبیعی.</p>
               <a class="svc-arrow" href="#contact" aria-label="رزرو ارتودنسی">←</a>
             </article>
 
             <article class="svc-card">
-              <div class="svc-img"><img src="assets/images/service-whitening.jpg" alt="بهداشت و ترمیم" /></div>
+              <div class="svc-img">
+                <picture>
+                  <source srcset="assets/images/service-whitening.webp" type="image/webp" />
+                  <img src="assets/images/service-whitening.jpg" alt="بهداشت و ترمیم" width="700" height="880" loading="lazy" decoding="async" />
+                </picture>
+              </div>
               <h3>بهداشت و ترمیم</h3>
               <p>چکاپ، جرم‌گیری و ترمیم‌های دقیق برای سلامت پایدار دهان و دندان.</p>
               <a class="svc-arrow" href="#contact" aria-label="رزرو بهداشت">←</a>
@@ -144,11 +171,17 @@
     <section class="experience" id="experience">
       <div class="exp-frame">
         <div class="exp-photo">
-          <img src="assets/images/clinic.jpg" alt="پذیرش و فضای مدرن کلینیک نخل" />
+          <picture>
+            <source srcset="assets/images/clinic.webp" type="image/webp" />
+            <img src="assets/images/clinic.jpg" alt="پذیرش و فضای مدرن کلینیک نخل" width="1400" height="900" loading="lazy" decoding="async" />
+          </picture>
         </div>
 
         <aside class="exp-orb" aria-hidden="false">
-          <img src="assets/images/clinic-room.jpg" alt="اتاق درمان کلینیک نخل" />
+          <picture>
+            <source srcset="assets/images/clinic-room.webp" type="image/webp" />
+            <img src="assets/images/clinic-room.jpg" alt="اتاق درمان کلینیک نخل" width="800" height="800" loading="lazy" decoding="async" />
+          </picture>
           <span>مراقبت دقیق</span>
         </aside>
 
@@ -217,7 +250,10 @@
     <section class="about" id="about">
       <div class="container about-grid">
         <div class="about-photo reveal">
-          <img src="assets/images/clinic-room.jpg" alt="فضای حرفه‌ای کلینیک" />
+          <picture>
+            <source srcset="assets/images/clinic-room.webp" type="image/webp" />
+            <img src="assets/images/clinic-room.jpg" alt="فضای حرفه‌ای کلینیک" width="800" height="1000" loading="lazy" decoding="async" />
+          </picture>
           <div class="license-chip">
             <span>نظام پزشکی</span>
             <strong>۱۶۰۱۹۸</strong>
@@ -305,6 +341,6 @@
     <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><path fill="currentColor" d="M16.01 3C9.39 3 4 8.39 4 15.01c0 2.12.56 4.18 1.63 6L4 29l8.2-1.58a11.9 11.9 0 0 0 3.81.62C22.63 28.04 28 22.65 28 16.03 28 9.39 22.63 3 16.01 3zm6.92 16.9c-.29.82-1.7 1.5-2.38 1.58-.61.08-1.38.11-2.23-.14-.51-.15-1.17-.38-2.02-.74-3.55-1.54-5.86-5.12-6.04-5.36-.18-.24-1.45-1.93-1.45-3.68 0-1.75.92-2.61 1.25-2.97.33-.36.72-.45.96-.45h.69c.22 0 .52-.08.81.62.29.72.99 2.48 1.08 2.66.09.18.14.39.03.63-.11.24-.17.39-.33.6-.16.21-.34.47-.49.63-.16.18-.33.37-.14.72.18.36.82 1.35 1.76 2.19 1.21 1.07 2.23 1.4 2.59 1.56.36.15.56.13.77-.08.21-.21.88-1.03 1.12-1.38.24-.36.47-.3.8-.18.33.12 2.1.99 2.46 1.17.36.18.6.27.69.42.09.15.09.87-.2 1.69z"/></svg>
   </a>
 
-  <script src="script.js" defer></script>
+  <script src="script.min.js" defer></script>
 </body>
 </html>

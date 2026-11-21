@@ -12,7 +12,15 @@
 python3 serve.py --port 3847
 ```
 
-سپس `http://localhost:3847` را باز کنید. سرور محلی از HTTP Range پشتیبانی می‌کند.
+سپس `http://localhost:3847` را باز کنید. سرور محلی از HTTP Range، gzip و Cache-Control پشتیبانی می‌کند.
+
+## بهینه‌سازی عملکرد
+
+- ویدیوی هیرو: H.264 720p با `faststart` و keyframeهای پرتکرار برای اسکراب
+- پوستر سبک WebP برای نمایش فوری هیرو
+- تصاویر صفحه با WebP (+ JPG fallback) و `loading="lazy"`
+- CSS/JS فشرده (`style.min.css` / `script.min.js`)
+- فونت‌ها فقط وزن‌های مورد نیاز
 
 ## نوع استقرار (Deployment type)
 

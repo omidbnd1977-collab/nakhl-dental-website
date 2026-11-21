@@ -82,6 +82,16 @@ button, input, select, textarea { font: inherit; }
 }
 
 .scroll-hero-video,
+.scroll-hero-pin > picture {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
 .scroll-hero-poster {
   position: absolute;
   inset: 0;
@@ -568,6 +578,7 @@ button, input, select, textarea { font: inherit; }
   margin-bottom: 0.95rem;
   background: #dfe5eb;
 }
+.svc-img picture { display: contents; }
 .svc-img img {
   width: 100%; height: 100%; object-fit: cover;
   transition: transform 0.5s var(--ease);
@@ -606,6 +617,7 @@ button, input, select, textarea { font: inherit; }
   box-shadow: var(--shadow);
 }
 .exp-photo { position: absolute; inset: 0; }
+.exp-photo picture { display: contents; }
 .exp-photo img {
   width: 100%; height: 100%;
   object-fit: cover;
@@ -632,6 +644,7 @@ button, input, select, textarea { font: inherit; }
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22);
   background: rgba(255, 255, 255, 0.12);
 }
+.exp-orb picture { display: contents; }
 .exp-orb img {
   width: 100%;
   height: 100%;
@@ -741,6 +754,7 @@ button, input, select, textarea { font: inherit; }
   align-items: center;
 }
 .about-photo { position: relative; }
+.about-photo picture { display: contents; }
 .about-photo img {
   width: 100%;
   aspect-ratio: 4 / 5;
