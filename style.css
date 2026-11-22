@@ -482,10 +482,10 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 .intro-panel {
   display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
-  gap: clamp(1.5rem, 4vw, 3rem);
-  align-items: center;
-  padding: clamp(1.5rem, 3vw, 2.4rem);
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+  gap: clamp(1.25rem, 3.2vw, 2.4rem);
+  align-items: stretch;
+  padding: clamp(1.15rem, 2.6vw, 1.85rem);
   border-radius: calc(var(--radius-lg) + 4px);
   background: rgba(255, 255, 255, 0.68);
   border: 1px solid var(--crystal-border-warm);
@@ -495,22 +495,48 @@ button, input, select, textarea { font: inherit; color: inherit; }
   backdrop-filter: blur(18px) saturate(140%);
   -webkit-backdrop-filter: blur(18px) saturate(140%);
 }
-.intro-copy .lede { max-width: 34rem; }
+.intro-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  padding-block: clamp(0.35rem, 1.2vw, 0.85rem);
+  padding-inline: clamp(0.15rem, 0.8vw, 0.45rem);
+}
+.intro-copy .lede {
+  max-width: 34rem;
+  margin-bottom: 0;
+}
 .intro-visual {
   margin: 0;
-  overflow: hidden;
-  border-radius: var(--radius-lg);
-  aspect-ratio: 4 / 5;
-  display: grid;
-  place-items: center;
-  background: rgba(255, 255, 255, 0.45);
-}
-.intro-visual picture { display: contents; }
-.intro-visual img {
+  min-width: 0;
   width: 100%;
   height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  padding: clamp(0.55rem, 1.4vw, 0.9rem);
+  box-sizing: border-box;
+}
+.intro-visual picture {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  line-height: 0;
+}
+.intro-visual img {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: min(440px, 62vh);
+  margin-inline: auto;
   object-fit: contain;
-  padding: 1rem;
+  object-position: center;
 }
 
 /* Services — glass cards */
@@ -870,6 +896,23 @@ button, input, select, textarea { font: inherit; color: inherit; }
   .intro-panel,
   .doctor-grid,
   .final-grid { grid-template-columns: 1fr; }
+  .intro-panel {
+    gap: 1.2rem;
+    padding: clamp(1.1rem, 3vw, 1.5rem);
+  }
+  .intro-copy {
+    padding-block: 0.15rem;
+    text-align: start;
+  }
+  .intro-visual {
+    width: min(100%, 340px);
+    height: auto;
+    margin-inline: auto;
+    padding: 0.7rem;
+  }
+  .intro-visual img {
+    max-height: min(380px, 52vh);
+  }
   .services-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .trust-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .gallery { grid-template-columns: 1fr 1fr; }
@@ -887,7 +930,20 @@ button, input, select, textarea { font: inherit; color: inherit; }
   .gallery-main,
   .gallery-side,
   .gallery-wide { min-height: 220px; }
-  .intro-visual { max-width: 280px; margin-inline: auto; }
+  .intro-panel {
+    padding: 1rem;
+    gap: 1rem;
+    overflow: hidden;
+  }
+  .intro-visual {
+    width: min(100%, 72vw);
+    max-width: 260px;
+    margin-inline: auto;
+    padding: 0.55rem;
+  }
+  .intro-visual img {
+    max-height: min(300px, 48vh);
+  }
   .site-body .btn { min-height: 50px; }
   .wa-fab {
     width: 50px;
