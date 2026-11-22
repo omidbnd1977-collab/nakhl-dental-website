@@ -548,7 +548,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
   margin-bottom: 0.95rem;
 }
 .svc-glass-media--contain {
-  background: #111;
+  background: #f7f6f3;
   display: grid;
   place-items: center;
 }
