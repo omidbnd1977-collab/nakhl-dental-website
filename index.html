@@ -131,16 +131,24 @@
     </div>
   </header>
 
-  <main id="main">
+  <main id="main" class="site-body">
     <!-- 2. Brand Introduction -->
     <section class="section intro" id="intro" aria-labelledby="intro-title">
-      <div class="container intro-grid reveal">
-        <p class="eyebrow">کلینیک نخل</p>
-        <h2 id="intro-title">جایی برای لبخندی دقیق، آرام و ماندگار.</h2>
-        <p class="lede">
-          در کلینیک دندانپزشکی نخل، زیبایی و سلامت دهان با استانداردهای دقیق پزشکی همراه می‌شود.
-          تمرکز ما روی درمان شفاف، فضای آرام و نتیجه‌ای است که با چهرهٔ شما هماهنگ باشد.
-        </p>
+      <div class="container intro-panel reveal">
+        <div class="intro-copy">
+          <p class="eyebrow">کلینیک نخل</p>
+          <h2 id="intro-title">جایی برای لبخندی دقیق، آرام و ماندگار.</h2>
+          <p class="lede">
+            در کلینیک دندانپزشکی نخل، زیبایی و سلامت دهان با استانداردهای دقیق پزشکی همراه می‌شود.
+            تمرکز ما روی درمان شفاف، فضای آرام و نتیجه‌ای است که با چهرهٔ شما هماهنگ باشد.
+          </p>
+        </div>
+        <figure class="intro-visual glass-surface">
+          <picture>
+            <source srcset="assets/images/illust-care.webp" type="image/webp" />
+            <img src="assets/images/illust-care.jpg" alt="نمای مفهومی مراقبت دندانپزشکی" width="400" height="564" loading="lazy" decoding="async" />
+          </picture>
+        </figure>
       </div>
     </section>
 
@@ -153,15 +161,15 @@
           <p class="section-lead">از زیبایی لبخند تا ایمپلنت و مراقبت‌های روزمره — هر خدمت با توضیح کوتاه و مسیر رزرو مشخص.</p>
         </div>
 
-        <div class="services-list" id="servicesList" data-services-root>
-          <article class="service-row reveal" data-service="aesthetic">
-            <div class="service-media">
+        <div class="services-grid" id="servicesList" data-services-root>
+          <article class="svc-glass reveal" data-service="aesthetic">
+            <div class="svc-glass-media">
               <picture>
                 <source srcset="assets/images/service-smile.webp" type="image/webp" />
                 <img src="assets/images/service-smile.jpg" alt="دندانپزشکی زیبایی در کلینیک نخل" width="900" height="700" loading="lazy" decoding="async" />
               </picture>
             </div>
-            <div class="service-copy">
+            <div class="svc-glass-copy">
               <span class="service-index" aria-hidden="true">۰۱</span>
               <h3>دندانپزشکی زیبایی</h3>
               <p>طراحی لبخند با نگاه دقیق به تناسب چهره و بافت طبیعی دندان.</p>
@@ -169,14 +177,14 @@
             </div>
           </article>
 
-          <article class="service-row service-row--flip reveal" data-service="veneers">
-            <div class="service-media">
+          <article class="svc-glass reveal" data-service="veneers">
+            <div class="svc-glass-media">
               <picture>
                 <source srcset="assets/images/service-whitening.webp" type="image/webp" />
                 <img src="assets/images/service-whitening.jpg" alt="لمینت و کامپوزیت" width="900" height="700" loading="lazy" decoding="async" />
               </picture>
             </div>
-            <div class="service-copy">
+            <div class="svc-glass-copy">
               <span class="service-index" aria-hidden="true">۰۲</span>
               <h3>لمینت و کامپوزیت</h3>
               <p>بازسازی فرم و رنگ دندان با فلوشیپ زیبایی و ترمیمی، برای نتیجه‌ای طبیعی و ماندگار.</p>
@@ -184,14 +192,14 @@
             </div>
           </article>
 
-          <article class="service-row reveal" data-service="implant">
-            <div class="service-media">
+          <article class="svc-glass reveal" data-service="implant">
+            <div class="svc-glass-media">
               <picture>
                 <source srcset="assets/images/service-implant.webp" type="image/webp" />
                 <img src="assets/images/service-implant.jpg" alt="ایمپلنت دندان" width="900" height="700" loading="lazy" decoding="async" />
               </picture>
             </div>
-            <div class="service-copy">
+            <div class="svc-glass-copy">
               <span class="service-index" aria-hidden="true">۰۳</span>
               <h3>ایمپلنت</h3>
               <p>جایگزینی دندان از دست‌رفته و بازسازی عملکرد جویدن با برنامه‌ریزی دقیق.</p>
@@ -199,14 +207,14 @@
             </div>
           </article>
 
-          <article class="service-row service-row--flip reveal" data-service="restorative">
-            <div class="service-media">
+          <article class="svc-glass reveal" data-service="restorative">
+            <div class="svc-glass-media svc-glass-media--contain">
               <picture>
-                <source srcset="assets/images/service-aligners.webp" type="image/webp" />
-                <img src="assets/images/service-aligners.jpg" alt="درمان‌های ترمیمی" width="900" height="700" loading="lazy" decoding="async" />
+                <source srcset="assets/images/illust-endo.webp" type="image/webp" />
+                <img src="assets/images/illust-endo.jpg" alt="درمان ریشه و ترمیم دقیق دندان" width="400" height="564" loading="lazy" decoding="async" />
               </picture>
             </div>
-            <div class="service-copy">
+            <div class="svc-glass-copy">
               <span class="service-index" aria-hidden="true">۰۴</span>
               <h3>درمان‌های ترمیمی</h3>
               <p>ترمیم‌های دقیق برای حفظ ساختار دندان و بازگرداندن عملکرد طبیعی.</p>
@@ -214,14 +222,14 @@
             </div>
           </article>
 
-          <article class="service-row reveal" data-service="general">
-            <div class="service-media">
+          <article class="svc-glass reveal" data-service="general">
+            <div class="svc-glass-media svc-glass-media--contain">
               <picture>
-                <source srcset="assets/images/clinic-room.webp" type="image/webp" />
-                <img src="assets/images/clinic-room.jpg" alt="خدمات عمومی دندانپزشکی" width="900" height="700" loading="lazy" decoding="async" />
+                <source srcset="assets/images/illust-pain.webp" type="image/webp" />
+                <img src="assets/images/illust-pain.jpg" alt="مراقبت و تسکین درد دندان" width="400" height="564" loading="lazy" decoding="async" />
               </picture>
             </div>
-            <div class="service-copy">
+            <div class="svc-glass-copy">
               <span class="service-index" aria-hidden="true">۰۵</span>
               <h3>خدمات عمومی دندانپزشکی</h3>
               <p>چکاپ، جرم‌گیری و مراقبت‌های پیشگیرانه برای سلامت پایدار دهان و دندان.</p>
@@ -235,17 +243,17 @@
     <!-- 4. Doctor Profile -->
     <section class="section doctor" id="doctor" aria-labelledby="doctor-title">
       <div class="container doctor-grid">
-        <div class="doctor-photo reveal">
+        <div class="doctor-photo glass-surface reveal">
           <picture>
-            <source srcset="assets/images/clinic-exterior.webp" type="image/webp" />
-            <img src="assets/images/clinic-exterior.jpg" alt="کلینیک نخل — فضای حرفه‌ای درمان" width="1280" height="962" loading="lazy" decoding="async" />
+            <source srcset="assets/images/clinic.webp" type="image/webp" />
+            <img src="assets/images/clinic.jpg" alt="فضای حرفه‌ای کلینیک نخل" width="1400" height="900" loading="lazy" decoding="async" />
           </picture>
           <div class="license-badge">
             <span>نظام پزشکی</span>
             <strong>۱۶۰۱۹۸</strong>
           </div>
         </div>
-        <div class="doctor-copy reveal">
+        <div class="doctor-copy glass-surface reveal">
           <p class="eyebrow">پزشک معالج</p>
           <h2 id="doctor-title">دکتر صحرا عباسی</h2>
           <p class="role">جراح — دندانپزشک · فلوشیپ زیبایی و ترمیمی</p>
@@ -270,21 +278,21 @@
           <p class="section-lead">نمایی از پذیرش، فضای درمان و معماری مینیمال کلینیک نخل در قشم.</p>
         </div>
         <div class="gallery reveal">
-          <figure class="gallery-main">
+          <figure class="gallery-main glass-surface">
             <picture>
               <source srcset="assets/images/clinic.webp" type="image/webp" />
               <img src="assets/images/clinic.jpg" alt="پذیرش و فضای مدرن کلینیک نخل" width="1400" height="900" loading="lazy" decoding="async" />
             </picture>
             <figcaption>پذیرش</figcaption>
           </figure>
-          <figure class="gallery-side">
+          <figure class="gallery-side glass-surface">
             <picture>
               <source srcset="assets/images/clinic-room.webp" type="image/webp" />
               <img src="assets/images/clinic-room.jpg" alt="اتاق درمان کلینیک نخل" width="800" height="1000" loading="lazy" decoding="async" />
             </picture>
             <figcaption>اتاق درمان</figcaption>
           </figure>
-          <figure class="gallery-wide">
+          <figure class="gallery-wide glass-surface">
             <picture>
               <source srcset="assets/images/clinic-exterior.webp" type="image/webp" />
               <img src="assets/images/clinic-exterior.jpg" alt="نمای بیرونی کلینیک نخل" width="1280" height="962" loading="lazy" decoding="async" />
@@ -303,27 +311,27 @@
           <h2 id="trust-title">اطلاعات واقعی و قابل تأیید.</h2>
         </div>
         <ul class="trust-grid reveal">
-          <li>
+          <li class="glass-surface">
             <span>نظام پزشکی</span>
             <strong>۱۶۰۱۹۸</strong>
           </li>
-          <li>
+          <li class="glass-surface">
             <span>تخصص</span>
             <strong>جراح دندانپزشک · فلوشیپ زیبایی و ترمیمی</strong>
           </li>
-          <li>
+          <li class="glass-surface">
             <span>تماس</span>
             <strong><a href="tel:07633388181">۰۷۶٬۳۳۳۸٬۸۱۸۱</a> · <a href="tel:07633387171">۰۷۶٬۳۳۳۸٬۷۱۷۱</a></strong>
           </li>
-          <li>
+          <li class="glass-surface">
             <span>واتساپ</span>
             <strong><a href="https://wa.me/989120153255" target="_blank" rel="noopener noreferrer" dir="ltr">۰۹۱۲٬۰۱۵٬۳۲۵۵</a></strong>
           </li>
-          <li>
+          <li class="glass-surface">
             <span>موقعیت</span>
             <strong>قشم، هرمزگان</strong>
           </li>
-          <li>
+          <li class="glass-surface">
             <span>اینستاگرام</span>
             <strong><a href="https://instagram.com/qeshm.clinic.nakhl" target="_blank" rel="noopener noreferrer" dir="ltr">@qeshm.clinic.nakhl</a></strong>
           </li>
@@ -333,7 +341,7 @@
 
     <!-- 7. Final CTA + booking -->
     <section class="section final-cta" id="contact" aria-labelledby="cta-title">
-      <div class="container final-grid">
+      <div class="container final-grid glass-surface">
         <div class="final-copy reveal">
           <p class="eyebrow">نوبت‌دهی</p>
           <h2 id="cta-title">برای لبخند زیباتر، اولین قدم را بردارید.</h2>
@@ -344,7 +352,7 @@
           </div>
         </div>
 
-        <form class="booking reveal" id="bookingForm" novalidate>
+        <form class="booking glass-surface reveal" id="bookingForm" novalidate>
           <h3>درخواست نوبت</h3>
           <p class="hint">فقط فیلدهای ضروری — پس از ارسال، واتساپ برای هماهنگی باز می‌شود.</p>
 
@@ -375,7 +383,7 @@
 
   <!-- 8. Footer -->
   <footer class="footer">
-    <div class="container footer-grid">
+    <div class="container footer-grid glass-surface">
       <div class="footer-brand">
         <img src="assets/images/logo.svg" alt="" width="36" height="40" />
         <div>
