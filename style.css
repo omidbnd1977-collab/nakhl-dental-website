@@ -524,15 +524,17 @@ button, input, select, textarea { font: inherit; color: inherit; }
 }
 .intro-visual picture {
   display: block;
-  width: 100%;
+  width: fit-content;
   max-width: 100%;
+  margin-inline: auto;
   line-height: 0;
 }
 .intro-visual img {
   display: block;
-  width: 100%;
+  width: auto;
   height: auto;
-  max-height: min(400px, 58vh);
+  max-width: 100%;
+  max-height: min(380px, 56vh);
   margin-inline: auto;
   object-fit: contain;
   object-position: center;
