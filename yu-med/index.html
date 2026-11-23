@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="YU.MED — clinica dentale: cura, estetica e tecnologia per il tuo sorriso." />
+  <title>YU.MED — Più di un sorriso</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Vai al contenuto</a>
+
+  <!-- ========== HERO ========== -->
+  <header class="hero" id="top">
+    <div class="nav-wrap">
+      <div class="nav-bar">
+        <a class="logo" href="#top" aria-label="YU.MED home">YU.MED</a>
+
+        <nav class="nav-links" id="mainNav" aria-label="Menu principale">
+          <a href="#trattamenti">Trattamenti</a>
+          <a href="#tecnologie">Tecnologie</a>
+          <a href="#clinica">Clinica</a>
+          <a href="#contatti">Contatti</a>
+        </nav>
+
+        <div class="nav-end">
+          <a class="btn btn-filled btn-nav" href="#contatti">Prenota ora</a>
+          <button class="burger" id="navToggle" type="button" aria-expanded="false" aria-controls="mainNav" aria-label="Apri menu">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <h1>Più di un<br /><em>sorriso.</em></h1>
+        <p class="hero-lead">
+          Cura, estetica e tecnologia per il tuo benessere, oggi e domani.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-filled" href="#contatti">Prenota una visita</a>
+          <a class="btn btn-outline" href="#clinica">Scopri la clinica</a>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <img
+          class="hero-photo"
+          src="assets/images/hero-portrait.jpg"
+          alt="Paziente con un sorriso sereno"
+          width="1000"
+          height="1000"
+        />
+        <aside class="hero-chip" aria-label="Approccio">
+          Un approccio personalizzato per ogni sorriso.
+        </aside>
+        <figure class="hero-inset">
+          <img src="assets/images/hero-inset.jpg" alt="Sala di trattamento YU.MED" width="640" height="480" />
+        </figure>
+        <span class="floater floater-a" aria-hidden="true"></span>
+        <span class="floater floater-b" aria-hidden="true"></span>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- ========== SOLUZIONI ========== -->
+    <section class="section solutions" id="trattamenti" aria-labelledby="soluzioni-title">
+      <div class="container solutions-layout">
+        <div class="solutions-copy">
+          <h2 id="soluzioni-title">Soluzioni per ogni esigenza.</h2>
+          <p class="section-lead">
+            Percorsi di cura chiari e personalizzati: dall’estetica del sorriso
+            all’implantologia, con attenzione al comfort e al risultato.
+          </p>
+          <a class="btn btn-filled" href="#contatti">Prenota ora</a>
+        </div>
+
+        <div class="solutions-panel">
+          <div class="carousel-controls" aria-label="Controlli carousel">
+            <button type="button" class="carousel-btn" id="solPrev" aria-label="Precedente">‹</button>
+            <button type="button" class="carousel-btn" id="solNext" aria-label="Successivo">›</button>
+          </div>
+
+          <div class="solutions-track" id="solutionsTrack" tabindex="0" aria-label="Trattamenti">
+            <article class="sol-card">
+              <img src="assets/images/service-smile.jpg" alt="" width="900" height="700" loading="lazy" />
+              <h3>Estetica del sorriso</h3>
+              <p>Sbiancamento e armonizzazione del sorriso con un risultato naturale.</p>
+            </article>
+            <article class="sol-card">
+              <img src="assets/images/service-implant.jpg" alt="" width="900" height="700" loading="lazy" />
+              <h3>Implantologia</h3>
+              <p>Soluzioni stabili e durature per sostituire i denti mancanti.</p>
+            </article>
+            <article class="sol-card">
+              <img src="assets/images/service-aligners.jpg" alt="" width="900" height="700" loading="lazy" />
+              <h3>Allineatori</h3>
+              <p>Correzione discreta e confortevole dell’allineamento dentale.</p>
+            </article>
+            <article class="sol-card">
+              <img src="assets/images/service-whitening.jpg" alt="" width="900" height="700" loading="lazy" />
+              <h3>Igiene e prevenzione</h3>
+              <p>Controlli e trattamenti mirati per mantenere la salute orale.</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== ESPERIENZA ========== -->
+    <section class="section experience" id="clinica" aria-labelledby="esperienza-title">
+      <div class="experience-media">
+        <img src="assets/images/reception.jpg" alt="Reception della clinica YU.MED" width="1400" height="900" loading="lazy" />
+      </div>
+      <div class="container experience-grid">
+        <div class="experience-copy">
+          <h2 id="esperienza-title">Un’esperienza di benessere.</h2>
+          <ul class="feature-list">
+            <li>
+              <strong>Tecnologia avanzata</strong>
+              <span>Strumentazione moderna per diagnosi e cure precise.</span>
+            </li>
+            <li>
+              <strong>Team specializzato</strong>
+              <span>Professionisti dedicati a percorsi chiari e rassicuranti.</span>
+            </li>
+            <li>
+              <strong>Ambiente accogliente</strong>
+              <span>Spazi pensati per ridurre lo stress e favorire la fiducia.</span>
+            </li>
+          </ul>
+          <a class="btn btn-filled" href="#contatti">Prenota una visita</a>
+          <a class="btn btn-outline experience-secondary" href="#tecnologie">Scopri la clinica</a>
+        </div>
+
+        <div class="experience-aside">
+          <figure class="experience-round">
+            <img src="assets/images/treatment.jpg" alt="Trattamento in corso" width="800" height="800" loading="lazy" />
+          </figure>
+          <p class="experience-quote">Cura, tecnologia, persone.</p>
+          <span class="floater floater-c" aria-hidden="true"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== TRUST + CTA ========== -->
+    <section class="section trust" id="tecnologie" aria-labelledby="trust-title">
+      <div class="container trust-grid">
+        <div class="stats" aria-label="Numeri della clinica">
+          <h2 id="trust-title" class="visually-hidden">I nostri numeri</h2>
+          <div class="stat">
+            <strong>2.500+</strong>
+            <span>pazienti seguiti</span>
+          </div>
+          <div class="stat">
+            <strong>98%</strong>
+            <span>soddisfazione</span>
+          </div>
+          <div class="stat">
+            <strong>15+</strong>
+            <span>anni di esperienza</span>
+          </div>
+        </div>
+
+        <aside class="final-cta" id="contatti">
+          <div>
+            <h2>Prenota la tua visita</h2>
+            <p>Raccontaci le tue esigenze: ti proponiamo un percorso chiaro e senza sorprese.</p>
+          </div>
+          <a class="btn btn-filled" href="mailto:info@yumed.example">Prenota ora</a>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-row">
+      <strong>YU.MED</strong>
+      <p>Clinica dentale — cura, estetica, tecnologia.</p>
+      <a href="mailto:info@yumed.example">info@yumed.example</a>
+    </div>
+  </footer>
+
+  <script src="script.js" defer></script>
+</body>
+</html>
