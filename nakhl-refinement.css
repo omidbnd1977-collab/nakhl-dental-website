@@ -239,3 +239,44 @@ a{transition:color .2s,background .2s,border-color .2s,transform .2s}
   .nav-links{gap:9px!important}
   .nav-links a{font-size:10px!important}
 }
+
+
+/* Final media-frame corrections: preserve full illustrations and let GSAP own pin positioning */
+.intro-visual picture,
+.svc-glass-media picture,
+.doctor-photo picture,
+.gallery figure picture{
+  position:absolute!important;
+  inset:0!important;
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  overflow:hidden!important;
+}
+.intro-visual picture img{
+  object-fit:contain!important;
+  object-position:center!important;
+  padding:10px!important;
+  box-sizing:border-box!important;
+}
+.svc-glass-media--contain picture img{
+  object-fit:contain!important;
+  object-position:center!important;
+  padding:8px!important;
+  box-sizing:border-box!important;
+  background:#f7f6f3!important;
+}
+.svc-glass-media:not(.svc-glass-media--contain) picture img,
+.doctor-photo picture img,
+.gallery figure picture img{
+  object-fit:cover!important;
+  object-position:center!important;
+  padding:0!important;
+}
+@media(max-width:640px){
+  .svc-glass-media{min-height:142px!important;height:auto!important}
+  .svc-glass-media picture{position:absolute!important;inset:0!important}
+  .svc-glass-media picture img{width:100%!important;height:100%!important;min-width:0!important;min-height:0!important}
+}
+/* ScrollTrigger must be able to switch the hero pin to fixed while scrubbing */
+.scroll-hero-pin{position:relative}
