@@ -189,3 +189,53 @@ a{transition:color .2s,background .2s,border-color .2s,transform .2s}
 @media(prefers-reduced-motion:reduce){
  .intro-visual,.svc-glass-media,.doctor-photo,.gallery figure,.intro-visual img,.svc-glass-media img,.doctor-photo img,.gallery figure img{transition:none!important}
 }
+
+
+/* Reliable image filling: make picture layers independent of percentage-height resolution */
+.intro-visual,.svc-glass-media,.doctor-photo,.gallery figure{
+  position:relative!important;
+  overflow:hidden!important;
+}
+.intro-visual picture,.svc-glass-media picture,.doctor-photo picture,.gallery figure picture{
+  position:absolute!important;
+  inset:0!important;
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  overflow:hidden!important;
+}
+.intro-visual picture img,.svc-glass-media picture img,.doctor-photo picture img,.gallery figure picture img{
+  position:absolute!important;
+  inset:0!important;
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  min-width:100%!important;
+  min-height:100%!important;
+  max-width:none!important;
+  max-height:none!important;
+  object-fit:cover!important;
+  object-position:center!important;
+}
+.svc-glass-media--contain picture img{object-fit:cover!important}
+@media(max-width:640px){
+  .svc-glass{grid-template-columns:112px minmax(0,1fr)!important;align-items:stretch!important}
+  .svc-glass-media{
+    position:relative!important;
+    width:112px!important;
+    height:auto!important;
+    min-height:142px!important;
+    align-self:stretch!important;
+  }
+  .svc-glass-media picture{position:absolute!important;inset:0!important}
+  .svc-glass-media picture img{position:absolute!important;inset:0!important}
+}
+/* Keep navigation readable when all major sections are exposed */
+.nav-links{flex-wrap:nowrap!important;white-space:nowrap!important}
+.nav-links a{font-size:12px!important}
+@media(max-width:1100px) and (min-width:641px){
+  .nav-links{gap:9px!important}
+  .nav-links a{font-size:10px!important}
+}
