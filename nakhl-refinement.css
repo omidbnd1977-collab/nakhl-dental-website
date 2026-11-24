@@ -167,3 +167,21 @@ img{display:block;max-width:100%}
  .footer-grid{align-items:flex-start!important;flex-direction:column!important}
  .footer-meta p{line-height:2!important}
 }
+
+
+/* Hero scroll synchronization fix: allow ScrollTrigger's pin spacer to extend
+   beyond the hero wrapper, while keeping the visual viewport clipped. */
+.scroll-hero{
+  height:100svh!important;
+  min-height:690px!important;
+  overflow:visible!important;
+}
+.scroll-hero-pin{
+  height:100svh!important;
+  min-height:690px!important;
+  overflow:hidden!important;
+}
+@media(max-width:640px){
+  .scroll-hero{height:92svh!important;min-height:720px!important}
+  .scroll-hero-pin{height:92svh!important;min-height:720px!important}
+}
