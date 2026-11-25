@@ -1,0 +1,15 @@
+# Render Blueprint — web service for the static Nakhl landing
+services:
+  - type: web
+    name: nakhl-dental-refresh
+    runtime: python
+    plan: free
+    region: oregon
+    branch: main
+    buildCommand: "true"
+    startCommand: "python3 serve.py --host 0.0.0.0"
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.0"
