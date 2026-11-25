@@ -301,6 +301,7 @@
     if (el.closest(".hero-pin")) return;
     const strength = Number(el.dataset.tiltStrength || 8);
     const max = Math.min(Math.max(strength, 4), 18);
+    const pop = el.classList.contains("spec-item") ? 28 : 12;
     const reset = () => {
       el.classList.remove("is-tilting");
       el.style.transform = "perspective(900px) rotateX(0deg) rotateY(0deg) translateZ(0)";
@@ -312,7 +313,7 @@
       const x = (event.clientX - rect.left) / rect.width;
       const y = (event.clientY - rect.top) / rect.height;
       el.style.transform =
-        `perspective(900px) rotateX(${((0.5 - y) * max * 2).toFixed(2)}deg) rotateY(${(((x - 0.5) * max * 2)).toFixed(2)}deg) translateZ(12px)`;
+        `perspective(900px) rotateX(${((0.5 - y) * max * 2).toFixed(2)}deg) rotateY(${(((x - 0.5) * max * 2)).toFixed(2)}deg) translateZ(${pop}px)`;
     });
   });
 })();
