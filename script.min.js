@@ -58,17 +58,18 @@
     next.addEventListener("click", () => track.scrollBy({ left: delta("next"), behavior: "smooth" }));
   }
 
-  /* —— Hero: exact PixVerse frames on canvas, 1 scroll-step = 1 frame —— */
+  /* —— Hero: scroll-scrubbed frames (progressive load, capped concurrency) —— */
   const scrollRoot = document.getElementById("heroScroll");
   const canvas = document.getElementById("heroCanvas");
   const frameEl = document.getElementById("heroFrame");
   const progressBar = document.getElementById("heroProgressBar");
-  const hint = document.getElementById("heroScrollHint");
   const copyPanel = document.querySelector(".hero-copy-panel");
   const pin = document.getElementById("heroPin");
 
   if (scrollRoot && (canvas || frameEl)) {
     const FRAME_COUNT = 121;
+    const LOOKAHEAD = 10;
+    const MAX_INFLIGHT = 4;
     const frameUrl = (i) =>
       `assets/hero-frames/f-${String(i + 1).padStart(3, "0")}.jpg`;
 
@@ -77,6 +78,9 @@
 
     const clamp01 = (n) => Math.min(1, Math.max(0, n));
     const images = new Array(FRAME_COUNT);
+    const loading = new Set();
+    const queue = [];
+    let inflight = 0;
     let current = -1;
     let raf = 0;
     let ctx = null;
@@ -130,33 +134,98 @@
       ctx.drawImage(img, dx, dy, dw, dh);
     };
 
+    const nearestReady = (index) => {
+      if (images[index]?.complete && images[index].naturalWidth) return index;
+      for (let d = 1; d < FRAME_COUNT; d++) {
+        const a = index - d;
+        const b = index + d;
+        if (a >= 0 && images[a]?.complete && images[a].naturalWidth) return a;
+        if (b < FRAME_COUNT && images[b]?.complete && images[b].naturalWidth) return b;
+      }
+      return -1;
+    };
+
     const paint = (index) => {
-      const img = images[index];
-      if (!img) return;
+      const ready = nearestReady(index);
+      if (ready < 0) return;
+      const img = images[ready];
       if (canvas && ctx) {
         coverDraw(img);
         if (frameEl) frameEl.hidden = true;
       } else if (frameEl) {
-        frameEl.src = img.src || frameUrl(index);
+        frameEl.src = img.src || frameUrl(ready);
         frameEl.hidden = false;
       }
     };
 
-    // Preload all frames (original export quality, upscaled for sharp cover)
-    let loaded = 0;
-    for (let i = 0; i < FRAME_COUNT; i++) {
-      const img = new Image();
-      img.decoding = "async";
-      img.src = frameUrl(i);
-      images[i] = img;
-      img.onload = () => {
-        loaded += 1;
-        if (i === 0) {
-          current = 0;
-          paint(0);
+    const pump = () => {
+      while (inflight < MAX_INFLIGHT && queue.length) {
+        const i = queue.shift();
+        if (i < 0 || i >= FRAME_COUNT) continue;
+        if (images[i]?.complete && images[i].naturalWidth) continue;
+        if (loading.has(i)) continue;
+        loading.add(i);
+        inflight += 1;
+        const img = images[i] || new Image();
+        img.decoding = "async";
+        images[i] = img;
+        const done = () => {
+          loading.delete(i);
+          inflight = Math.max(0, inflight - 1);
+          if (current < 0) current = 0;
+          if (i === current || Math.abs(i - current) <= 1) paint(current);
+          pump();
+        };
+        if (img.complete && img.naturalWidth) {
+          done();
+          continue;
         }
+        img.onload = done;
+        img.onerror = done;
+        if (!img.src) img.src = frameUrl(i);
+      }
+    };
+
+    const enqueue = (i, urgent) => {
+      if (i < 0 || i >= FRAME_COUNT) return;
+      if (images[i]?.complete && images[i].naturalWidth) return;
+      if (loading.has(i)) return;
+      if (queue.includes(i)) {
+        if (urgent) {
+          const at = queue.indexOf(i);
+          if (at > 0) {
+            queue.splice(at, 1);
+            queue.unshift(i);
+          }
+        }
+        return;
+      }
+      if (urgent) queue.unshift(i);
+      else queue.push(i);
+      pump();
+    };
+
+    const ensureAround = (index) => {
+      enqueue(index, true);
+      for (let d = 1; d <= LOOKAHEAD; d++) {
+        enqueue(index + d, d <= 3);
+        enqueue(index - d, d <= 3);
+      }
+    };
+
+    // First paint ASAP from the already-in-HTML poster, then progressive frames
+    if (frameEl) {
+      const bindPoster = () => {
+        const poster = new Image();
+        poster.src = frameEl.currentSrc || frameEl.src;
+        images[0] = poster;
+        current = 0;
+        paint(0);
       };
+      if (frameEl.complete && frameEl.naturalWidth) bindPoster();
+      else frameEl.addEventListener("load", bindPoster, { once: true });
     }
+    enqueue(0, true);
 
     const progressFromScroll = () => {
       const travel = Math.max(1, scrollRoot.offsetHeight - window.innerHeight);
@@ -165,7 +234,6 @@
 
     const syncChrome = (p) => {
       if (progressBar) progressBar.style.width = `${(p * 100).toFixed(2)}%`;
-      if (hint) hint.style.opacity = p > 0.03 ? "0" : "1";
       if (copyPanel) {
         const fade = clamp01((p - 0.85) / 0.15);
         copyPanel.style.opacity = String(1 - fade * 0.5);
@@ -180,8 +248,11 @@
       const index = reduceMotion
         ? FRAME_COUNT - 1
         : Math.round(p * (FRAME_COUNT - 1));
+      ensureAround(index);
       if (index !== current) {
         current = index;
+        paint(index);
+      } else {
         paint(index);
       }
     };
@@ -200,6 +271,16 @@
       },
       { passive: true }
     );
+
+    // Warm a few early frames after first paint without saturating the network
+    const warm = () => {
+      for (let i = 1; i <= 12; i++) enqueue(i, false);
+    };
+    if ("requestIdleCallback" in window) {
+      requestIdleCallback(warm, { timeout: 1200 });
+    } else {
+      setTimeout(warm, 400);
+    }
 
     kick();
   }
