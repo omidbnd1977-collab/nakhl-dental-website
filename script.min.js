@@ -10,6 +10,7 @@
   if (landingNav && landingToggle) {
     const setOpen = (open) => {
       landingNav.classList.toggle("is-open", open);
+      landingToggle.classList.toggle("is-open", open);
       landingToggle.setAttribute("aria-expanded", open ? "true" : "false");
       landingToggle.setAttribute("aria-label", open ? "بستن منو" : "باز کردن منو");
     };
@@ -294,26 +295,51 @@
     kick();
   }
 
-  /* —— 3D tilt —— */
-  if (reduceMotion || !finePointer) return;
-
-  document.querySelectorAll(".tilt-3d").forEach((el) => {
-    if (el.closest(".hero-pin")) return;
-    const strength = Number(el.dataset.tiltStrength || 8);
-    const max = Math.min(Math.max(strength, 4), 18);
-    const pop = el.classList.contains("spec-item") ? 28 : 12;
-    const reset = () => {
-      el.classList.remove("is-tilting");
-      el.style.transform = "perspective(900px) rotateX(0deg) rotateY(0deg) translateZ(0)";
-    };
-    el.addEventListener("pointerenter", () => el.classList.add("is-tilting"));
-    el.addEventListener("pointerleave", reset);
-    el.addEventListener("pointermove", (event) => {
-      const rect = el.getBoundingClientRect();
-      const x = (event.clientX - rect.left) / rect.width;
-      const y = (event.clientY - rect.top) / rect.height;
-      el.style.transform =
-        `perspective(900px) rotateX(${((0.5 - y) * max * 2).toFixed(2)}deg) rotateY(${(((x - 0.5) * max * 2)).toFixed(2)}deg) translateZ(${pop}px)`;
-    });
+  /* —— Marquee: pause while interacting (desktop hover + mobile touch) —— */
+  document.querySelectorAll("[data-marquee]").forEach((root) => {
+    const pause = () => root.classList.add("is-paused");
+    const resume = () => root.classList.remove("is-paused");
+    root.addEventListener("pointerenter", pause);
+    root.addEventListener("pointerleave", resume);
+    root.addEventListener("pointerdown", pause);
+    root.addEventListener("pointerup", resume);
+    root.addEventListener("pointercancel", resume);
   });
+
+  /* —— 3D tilt (fine pointer) + tap pop (touch) —— */
+  if (!reduceMotion) {
+    document.querySelectorAll(".tilt-3d").forEach((el) => {
+      if (el.closest(".hero-pin")) return;
+      const strength = Number(el.dataset.tiltStrength || 8);
+      const max = Math.min(Math.max(strength, 4), 18);
+      const pop = el.classList.contains("spec-item") ? 28 : 12;
+      const reset = () => {
+        el.classList.remove("is-tilting", "is-active");
+        el.style.transform = "";
+      };
+
+      if (finePointer) {
+        el.addEventListener("pointerenter", () => el.classList.add("is-tilting"));
+        el.addEventListener("pointerleave", reset);
+        el.addEventListener("pointermove", (event) => {
+          const rect = el.getBoundingClientRect();
+          const x = (event.clientX - rect.left) / rect.width;
+          const y = (event.clientY - rect.top) / rect.height;
+          el.style.transform =
+            `perspective(900px) rotateX(${((0.5 - y) * max * 2).toFixed(2)}deg) rotateY(${(((x - 0.5) * max * 2)).toFixed(2)}deg) translateZ(${pop}px)`;
+        });
+      } else {
+        // Mobile/touch: press pop + sheen without requiring hover
+        el.addEventListener("pointerdown", () => {
+          el.classList.add("is-active", "is-tilting");
+          el.style.transform =
+            `perspective(900px) rotateX(6deg) rotateY(-5deg) translateZ(${Math.min(pop, 18)}px) scale(1.03)`;
+        });
+        el.addEventListener("pointerup", reset);
+        el.addEventListener("pointercancel", reset);
+        el.addEventListener("pointerleave", reset);
+      }
+    });
+  }
+
 })();
