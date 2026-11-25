@@ -58,11 +58,101 @@
     next.addEventListener("click", () => track.scrollBy({ left: delta("next"), behavior: "smooth" }));
   }
 
-  /* —— 3D tilt on hover —— */
+  /* —— Scroll-scrubbed hero video (no GSAP) —— */
+  const scrollRoot = document.getElementById("heroScroll");
+  const video = document.getElementById("heroVideo");
+  const progressBar = document.getElementById("heroProgressBar");
+  const hint = document.getElementById("heroScrollHint");
+  const copyPanel = document.querySelector(".hero-copy-panel");
+
+  if (scrollRoot && video) {
+    const vhMul = Number(scrollRoot.dataset.scrollHeight || 320) / 100;
+    const setScrollHeight = () => {
+      scrollRoot.style.height = `${Math.max(vhMul, 2.2) * 100}vh`;
+    };
+    setScrollHeight();
+
+    let duration = 0;
+    let ready = false;
+    let ticking = false;
+    let lastTime = -1;
+
+    const clamp01 = (n) => Math.min(1, Math.max(0, n));
+
+    const progressFromScroll = () => {
+      const total = scrollRoot.offsetHeight - window.innerHeight;
+      if (total <= 0) return 0;
+      const scrolled = Math.min(Math.max(-scrollRoot.getBoundingClientRect().top, 0), total);
+      return clamp01(scrolled / total);
+    };
+
+    const applyFrame = () => {
+      ticking = false;
+      if (!ready || !duration) return;
+      const p = progressFromScroll();
+      if (progressBar) progressBar.style.width = `${(p * 100).toFixed(2)}%`;
+      if (hint) hint.style.opacity = p > 0.08 ? "0" : "0.9";
+      if (copyPanel) {
+        const fade = clamp01((p - 0.72) / 0.28);
+        copyPanel.style.opacity = String(1 - fade * 0.35);
+        copyPanel.style.transform = `translateY(${(-12 * fade).toFixed(1)}px)`;
+      }
+
+      if (reduceMotion) {
+        video.currentTime = Math.min(duration * 0.85, duration - 0.05);
+        return;
+      }
+
+      const t = Math.min(duration - 0.04, p * duration);
+      if (Math.abs(t - lastTime) < 0.012) return;
+      lastTime = t;
+      try {
+        video.currentTime = t;
+      } catch (_) {
+        /* ignore seek while not ready */
+      }
+    };
+
+    const requestTick = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(applyFrame);
+    };
+
+    const onMeta = () => {
+      duration = video.duration || 0;
+      if (!duration || !Number.isFinite(duration)) return;
+      ready = true;
+      video.pause();
+      video.currentTime = 0;
+      requestTick();
+    };
+
+    video.addEventListener("loadedmetadata", onMeta);
+    if (video.readyState >= 1) onMeta();
+
+    // Warm decode for smoother scrubbing
+    video.addEventListener(
+      "canplay",
+      () => {
+        video.pause();
+      },
+      { once: true }
+    );
+
+    window.addEventListener("scroll", requestTick, { passive: true });
+    window.addEventListener("resize", () => {
+      setScrollHeight();
+      requestTick();
+    }, { passive: true });
+  }
+
+  /* —— 3D tilt on hover (non-hero panels) —— */
   if (reduceMotion || !finePointer) return;
 
   const tilts = document.querySelectorAll(".tilt-3d");
   tilts.forEach((el) => {
+    if (el.closest(".hero-pin")) return;
     const strength = Number(el.dataset.tiltStrength || 8);
     const max = Math.min(Math.max(strength, 4), 18);
 
@@ -83,22 +173,4 @@
         `perspective(900px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateZ(12px)`;
     });
   });
-
-  /* Soft parallax for floating orbs near cursor in hero */
-  const hero = document.querySelector(".hero");
-  const orbs = document.querySelectorAll(".hero .orb");
-  if (hero && orbs.length) {
-    hero.addEventListener("pointermove", (event) => {
-      const rect = hero.getBoundingClientRect();
-      const nx = (event.clientX - rect.left) / rect.width - 0.5;
-      const ny = (event.clientY - rect.top) / rect.height - 0.5;
-      orbs.forEach((orb, i) => {
-        const k = (i + 1) * 8;
-        orb.style.transform = `translate(${(-nx * k).toFixed(1)}px, ${(-ny * k).toFixed(1)}px)`;
-      });
-    });
-    hero.addEventListener("pointerleave", () => {
-      orbs.forEach((orb) => { orb.style.transform = ""; });
-    });
-  }
 })();

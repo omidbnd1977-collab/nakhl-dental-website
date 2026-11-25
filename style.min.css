@@ -256,19 +256,71 @@ h1, h2, h3 {
 
 .experience-copy .btn-ghost-dark { margin-inline-start: 0.55rem; }
 
-/* —— Hero —— */
+/* —— Hero (scroll-scrub video) —— */
 .hero {
   position: relative;
   overflow: visible;
-  padding: 1.15rem 0 4.5rem;
+  padding: 0;
   color: var(--ink);
+}
+
+.hero--video {
+  background: transparent;
+}
+
+.hero-scroll {
+  position: relative;
+  height: 320vh;
+}
+
+.hero-pin {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  min-height: 560px;
+  overflow: hidden;
+}
+
+.hero-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.hero-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  background: #1a2c36 center / cover no-repeat;
+  transform: scale(1.02);
+}
+
+.hero-veil {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(246, 243, 238, 0.82) 0%, rgba(246, 243, 238, 0.35) 42%, rgba(20, 36, 44, 0.18) 100%),
+    linear-gradient(180deg, rgba(255, 250, 246, 0.35) 0%, transparent 28%, rgba(26, 44, 54, 0.28) 100%);
+  pointer-events: none;
+}
+
+.hero-ui {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: min(100% - 2.5rem, var(--container));
+  margin-inline: auto;
+  padding: 1.1rem 0 1.4rem;
 }
 
 .nav-wrap {
   position: relative;
   z-index: 40;
-  width: min(100% - 2.75rem, var(--container));
-  margin: 0 auto 2.4rem;
+  width: 100%;
+  margin: 0 0 1.5rem;
   border-radius: 20px;
   padding: 0.35rem 0.85rem;
 }
@@ -345,13 +397,14 @@ h1, h2, h3 {
   border-radius: 2px;
 }
 
-.hero-grid {
-  width: min(100% - 2.75rem, var(--container));
-  margin-inline: auto;
-  display: grid;
-  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
-  gap: clamp(1.75rem, 5vw, 4.5rem);
-  align-items: center;
+.hero-copy-panel {
+  width: min(100%, 34rem);
+  margin-top: auto;
+  margin-bottom: 1.25rem;
+  padding: 1.35rem 1.4rem 1.2rem;
+  border-radius: 24px;
+  transform: translateZ(0);
+  transition: opacity 0.35s var(--ease), transform 0.45s var(--ease);
 }
 
 .hero-kicker {
@@ -365,7 +418,7 @@ h1, h2, h3 {
 
 .hero-copy h1 {
   margin: 0 0 1rem;
-  font-size: clamp(2.8rem, 6.5vw, 5.2rem);
+  font-size: clamp(2.6rem, 6vw, 4.6rem);
   letter-spacing: -0.02em;
   color: var(--deep);
 }
@@ -378,7 +431,7 @@ h1, h2, h3 {
 }
 
 .hero-lead {
-  margin: 0 0 1.5rem;
+  margin: 0 0 1.35rem;
   max-width: 28rem;
   color: var(--muted);
   font-size: 1rem;
@@ -389,61 +442,43 @@ h1, h2, h3 {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.1rem;
 }
 
 .hero-badges {
   list-style: none;
-  margin: 0;
+  margin: 0 0 0.85rem;
   padding: 0;
   display: flex;
   flex-wrap: wrap;
   gap: 0.55rem;
 }
 
-.hero-visual {
-  position: relative;
-  width: 100%;
-  max-width: 620px;
-  justify-self: stretch;
-  margin-bottom: 1.5rem;
-}
-
-.hero-frame { width: 100%; }
-
-.hero-photo {
-  width: 100%;
-  aspect-ratio: 1.12 / 1;
-  max-height: 490px;
-  object-fit: cover;
-  object-position: center 35%;
-}
-
-.hero-chip {
-  position: absolute;
-  z-index: 3;
-  inset-inline-start: -1.1rem;
-  bottom: 1.6rem;
-  max-width: 13.5rem;
-  padding: 0.9rem 1rem;
-  border-radius: 16px;
-  color: var(--deep);
-  font-size: 0.8rem;
-  line-height: 1.85;
-}
-
-.hero-inset {
-  position: absolute;
-  z-index: 3;
-  inset-inline-end: -1rem;
-  bottom: -1.4rem;
+.hero-scroll-hint {
   margin: 0;
-  width: 32%;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--gold);
+  opacity: 0.9;
+  transition: opacity 0.3s;
 }
-.hero-inset img {
-  width: 100%;
-  aspect-ratio: 1.35 / 1;
-  object-fit: cover;
+
+.hero-progress {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.35);
+  overflow: hidden;
+  border-radius: 999px;
+}
+.hero-progress-bar {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #9ec4c8, #b9a48a);
+  transition: width 0.05s linear;
 }
 
 .orb {
@@ -455,8 +490,6 @@ h1, h2, h3 {
   pointer-events: none;
   animation: floaty 7s ease-in-out infinite;
 }
-.orb-a { width: 78px; height: 78px; inset-inline-end: -0.4rem; top: 12%; }
-.orb-b { width: 46px; height: 46px; inset-inline-start: 4%; bottom: 18%; animation-delay: -2.5s; }
 .orb-c { width: 58px; height: 58px; inset-inline-start: 6%; bottom: 10%; animation-delay: -1.2s; }
 
 @keyframes floaty {
@@ -801,25 +834,15 @@ h1, h2, h3 {
     color: var(--deep);
   }
 
-  .hero-grid {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
+  .hero-scroll { height: 260vh; }
+  .hero-pin { min-height: 100svh; }
+  .hero-copy-panel {
+    width: 100%;
+    padding: 1.1rem 1.05rem 1rem;
   }
-  .hero-copy { order: 1; }
-  .hero-visual {
-    order: 2;
-    max-width: 420px;
-    margin-inline: auto;
-  }
-  .hero-chip {
-    inset-inline-start: 0.4rem;
-    bottom: auto;
-    top: 8%;
-    max-width: 11rem;
-  }
-  .hero-inset {
-    inset-inline-end: 0.4rem;
-    bottom: -0.8rem;
+  .hero-veil {
+    background:
+      linear-gradient(180deg, rgba(246, 243, 238, 0.55) 0%, rgba(246, 243, 238, 0.2) 35%, rgba(20, 36, 44, 0.35) 100%);
   }
 
   .services-layout { grid-template-columns: 1fr; }
