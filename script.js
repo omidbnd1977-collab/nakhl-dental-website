@@ -30,6 +30,12 @@
     const gap = parseFloat(getComputedStyle(track).gap || "0") || 0;
     return card.getBoundingClientRect().width + gap;
   };
-  prev.addEventListener("click", () => track.scrollBy({ left: -step(), behavior: "smooth" }));
-  next.addEventListener("click", () => track.scrollBy({ left: step(), behavior: "smooth" }));
+  // In RTL, positive scrollLeft moves toward the visual "start" in most engines.
+  const rtl = getComputedStyle(track).direction === "rtl";
+  const delta = (dir) => {
+    const d = step();
+    return rtl ? (dir === "next" ? -d : d) : (dir === "next" ? d : -d);
+  };
+  prev.addEventListener("click", () => track.scrollBy({ left: delta("prev"), behavior: "smooth" }));
+  next.addEventListener("click", () => track.scrollBy({ left: delta("next"), behavior: "smooth" }));
 })();
