@@ -876,6 +876,8 @@ h1, h2, h3 {
   width: 54px;
   height: auto;
   max-width: none;
+  /* shift green logo toward gold like the mockup */
+  filter: sepia(0.85) saturate(1.35) hue-rotate(5deg) brightness(1.15);
 }
 .footer-logo strong {
   display: block;
