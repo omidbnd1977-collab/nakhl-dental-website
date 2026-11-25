@@ -58,44 +58,104 @@
     next.addEventListener("click", () => track.scrollBy({ left: delta("next"), behavior: "smooth" }));
   }
 
-  /* —— Exact-quality frame scrub (from original PixVerse file) —— */
+  /* —— Hero: exact PixVerse frames on canvas, 1 scroll-step = 1 frame —— */
   const scrollRoot = document.getElementById("heroScroll");
+  const canvas = document.getElementById("heroCanvas");
   const frameEl = document.getElementById("heroFrame");
   const progressBar = document.getElementById("heroProgressBar");
   const hint = document.getElementById("heroScrollHint");
   const copyPanel = document.querySelector(".hero-copy-panel");
+  const pin = document.getElementById("heroPin");
 
-  if (scrollRoot && frameEl) {
+  if (scrollRoot && (canvas || frameEl)) {
     const FRAME_COUNT = 121;
-    const PAD = 3;
-    // Pixels of scroll per frame — locks motion 1:1 with finger/wheel
+    const frameUrl = (i) =>
+      `assets/hero-frames/f-${String(i + 1).padStart(3, "0")}.jpg`;
+
     const pxPerFrame = () =>
-      (window.matchMedia("(max-width: 899px)").matches ? 11 : 14);
+      (window.matchMedia("(max-width: 899px)").matches ? 16 : 20);
 
     const clamp01 = (n) => Math.min(1, Math.max(0, n));
-    const frameSrc = (i) =>
-      `assets/hero-frames/f-${String(i + 1).padStart(PAD, "0")}.jpg`;
-
-    const cache = new Array(FRAME_COUNT);
-    let loaded = 0;
-    let current = 0;
+    const images = new Array(FRAME_COUNT);
+    let current = -1;
     let raf = 0;
+    let ctx = null;
 
     const setScrollHeight = () => {
       const travel = (FRAME_COUNT - 1) * pxPerFrame();
-      scrollRoot.style.height = `${window.innerHeight + travel}px`;
+      scrollRoot.style.height = `${Math.round(window.innerHeight + travel)}px`;
     };
     setScrollHeight();
 
-    // Preload every original frame into memory
+    if (canvas) {
+      ctx = canvas.getContext("2d", { alpha: false });
+      const fit = () => {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const w = pin?.clientWidth || window.innerWidth;
+        const h = pin?.clientHeight || window.innerHeight;
+        canvas.width = Math.round(w * dpr);
+        canvas.height = Math.round(h * dpr);
+        canvas.style.width = `${w}px`;
+        canvas.style.height = `${h}px`;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        if (current >= 0) paint(current);
+      };
+      fit();
+      window.addEventListener("resize", fit, { passive: true });
+    }
+
+    const coverDraw = (img) => {
+      if (!ctx || !img || !img.naturalWidth) return;
+      const cw = canvas.clientWidth;
+      const ch = canvas.clientHeight;
+      const ir = img.naturalWidth / img.naturalHeight;
+      const cr = cw / ch;
+      let dw;
+      let dh;
+      let dx;
+      let dy;
+      if (ir > cr) {
+        dh = ch;
+        dw = ch * ir;
+        dx = (cw - dw) / 2;
+        dy = 0;
+      } else {
+        dw = cw;
+        dh = cw / ir;
+        dx = 0;
+        dy = (ch - dh) / 2;
+      }
+      ctx.fillStyle = "#0f1c22";
+      ctx.fillRect(0, 0, cw, ch);
+      ctx.drawImage(img, dx, dy, dw, dh);
+    };
+
+    const paint = (index) => {
+      const img = images[index];
+      if (!img) return;
+      if (canvas && ctx) {
+        coverDraw(img);
+        if (frameEl) frameEl.hidden = true;
+      } else if (frameEl) {
+        frameEl.src = img.src || frameUrl(index);
+        frameEl.hidden = false;
+      }
+    };
+
+    // Preload all frames (original export quality, upscaled for sharp cover)
+    let loaded = 0;
     for (let i = 0; i < FRAME_COUNT; i++) {
       const img = new Image();
       img.decoding = "async";
-      img.src = frameSrc(i);
-      img.onload = img.onerror = () => {
+      img.src = frameUrl(i);
+      images[i] = img;
+      img.onload = () => {
         loaded += 1;
+        if (i === 0) {
+          current = 0;
+          paint(0);
+        }
       };
-      cache[i] = img;
     }
 
     const progressFromScroll = () => {
@@ -103,26 +163,13 @@
       return clamp01(-scrollRoot.getBoundingClientRect().top / travel);
     };
 
-    const showFrame = (index) => {
-      const i = Math.min(FRAME_COUNT - 1, Math.max(0, index | 0));
-      if (i === current && frameEl.getAttribute("data-i") === String(i)) return;
-      current = i;
-      frameEl.setAttribute("data-i", String(i));
-      const cached = cache[i];
-      if (cached && cached.complete && cached.naturalWidth) {
-        frameEl.src = cached.src;
-      } else {
-        frameEl.src = frameSrc(i);
-      }
-    };
-
     const syncChrome = (p) => {
       if (progressBar) progressBar.style.width = `${(p * 100).toFixed(2)}%`;
-      if (hint) hint.style.opacity = p > 0.04 ? "0" : "1";
+      if (hint) hint.style.opacity = p > 0.03 ? "0" : "1";
       if (copyPanel) {
-        const fade = clamp01((p - 0.82) / 0.18);
-        copyPanel.style.opacity = String(1 - fade * 0.45);
-        copyPanel.style.transform = `translate3d(0, ${(-14 * fade).toFixed(1)}px, 0)`;
+        const fade = clamp01((p - 0.85) / 0.15);
+        copyPanel.style.opacity = String(1 - fade * 0.5);
+        copyPanel.style.transform = `translate3d(0, ${(-10 * fade).toFixed(1)}px, 0)`;
       }
     };
 
@@ -130,12 +177,13 @@
       raf = 0;
       const p = progressFromScroll();
       syncChrome(p);
-      if (reduceMotion) {
-        showFrame(FRAME_COUNT - 1);
-        return;
+      const index = reduceMotion
+        ? FRAME_COUNT - 1
+        : Math.round(p * (FRAME_COUNT - 1));
+      if (index !== current) {
+        current = index;
+        paint(index);
       }
-      const index = Math.round(p * (FRAME_COUNT - 1));
-      showFrame(index);
     };
 
     const kick = () => {
@@ -153,33 +201,28 @@
       { passive: true }
     );
 
-    showFrame(0);
     kick();
   }
 
-  /* —— 3D tilt on hover (non-hero panels) —— */
+  /* —— 3D tilt —— */
   if (reduceMotion || !finePointer) return;
 
   document.querySelectorAll(".tilt-3d").forEach((el) => {
     if (el.closest(".hero-pin")) return;
     const strength = Number(el.dataset.tiltStrength || 8);
     const max = Math.min(Math.max(strength, 4), 18);
-
     const reset = () => {
       el.classList.remove("is-tilting");
       el.style.transform = "perspective(900px) rotateX(0deg) rotateY(0deg) translateZ(0)";
     };
-
     el.addEventListener("pointerenter", () => el.classList.add("is-tilting"));
     el.addEventListener("pointerleave", reset);
     el.addEventListener("pointermove", (event) => {
       const rect = el.getBoundingClientRect();
       const x = (event.clientX - rect.left) / rect.width;
       const y = (event.clientY - rect.top) / rect.height;
-      const rotateY = (x - 0.5) * max * 2;
-      const rotateX = (0.5 - y) * max * 2;
       el.style.transform =
-        `perspective(900px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateZ(12px)`;
+        `perspective(900px) rotateX(${((0.5 - y) * max * 2).toFixed(2)}deg) rotateY(${(((x - 0.5) * max * 2)).toFixed(2)}deg) translateZ(12px)`;
     });
   });
 })();

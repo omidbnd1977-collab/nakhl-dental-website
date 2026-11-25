@@ -53,13 +53,14 @@
     <div class="hero-scroll" id="heroScroll">
       <div class="hero-pin" id="heroPin">
         <div class="hero-media" aria-hidden="true">
-          <!-- Frame-scrub from original PixVerse export (exact quality, 1:1 scroll sync) -->
+          <!-- Canvas scrub from original PixVerse frames (sharp 1920 cover, 1:1 scroll) -->
+          <canvas id="heroCanvas" class="hero-canvas" width="1920" height="1442"></canvas>
           <img
             id="heroFrame"
             class="hero-frame-img"
             src="assets/hero-frames/f-001.jpg"
-            width="1108"
-            height="832"
+            width="1920"
+            height="1442"
             alt=""
             decoding="sync"
             fetchpriority="high"

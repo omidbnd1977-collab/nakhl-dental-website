@@ -290,25 +290,33 @@ h1, h2, h3 {
   z-index: 0;
 }
 
+.hero-canvas,
 .hero-frame-img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: center center;
   display: block;
-  /* No CSS filters — keep uploaded PixVerse quality untouched */
+  /* No CSS filters — keep PixVerse look */
   image-rendering: auto;
   user-select: none;
   pointer-events: none;
-  background: #0f1c22 center / cover no-repeat;
+  background: #0f1c22;
 }
+
+.hero-canvas { z-index: 1; }
+.hero-frame-img { z-index: 0; }
 
 .hero-veil {
   position: absolute;
   inset: 0;
+  z-index: 2;
+  /* Light veil only — do not wash out footage */
   background:
-    linear-gradient(100deg, rgba(255, 252, 248, 0.55) 0%, rgba(255, 250, 246, 0.12) 36%, transparent 58%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, transparent 30%, rgba(15, 28, 34, 0.28) 100%);
+    linear-gradient(100deg, rgba(255, 252, 248, 0.28) 0%, transparent 34%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, transparent 35%, rgba(15, 28, 34, 0.2) 100%);
   pointer-events: none;
 }
 
@@ -878,7 +886,7 @@ h1, h2, h3 {
   }
   .hero-veil {
     background:
-      linear-gradient(180deg, rgba(255, 252, 248, 0.42) 0%, rgba(246, 243, 238, 0.1) 40%, rgba(15, 28, 34, 0.35) 100%);
+      linear-gradient(180deg, rgba(255, 252, 248, 0.22) 0%, transparent 40%, rgba(15, 28, 34, 0.28) 100%);
   }
   .hero-veil::after { animation-duration: 9s; }
 
