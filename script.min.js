@@ -4,58 +4,67 @@
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
-  /* —— Mobile nav —— */
-  const nav = document.getElementById("mainNav");
-  const toggle = document.getElementById("navToggle");
-  const wrap = document.querySelector(".nav-wrap");
-
-  if (nav && toggle) {
+  /* —— Landing mobile nav —— */
+  const landingNav = document.getElementById("landingNav");
+  const landingToggle = document.getElementById("landingToggle");
+  if (landingNav && landingToggle) {
     const setOpen = (open) => {
-      nav.classList.toggle("open", open);
-      wrap?.classList.toggle("is-open", open);
-      toggle.setAttribute("aria-expanded", open ? "true" : "false");
-      toggle.setAttribute("aria-label", open ? "بستن منو" : "باز کردن منو");
+      landingNav.classList.toggle("is-open", open);
+      landingToggle.setAttribute("aria-expanded", open ? "true" : "false");
+      landingToggle.setAttribute("aria-label", open ? "بستن منو" : "باز کردن منو");
     };
     const close = () => setOpen(false);
-
-    toggle.addEventListener("click", (event) => {
+    landingToggle.addEventListener("click", (event) => {
       event.preventDefault();
       event.stopPropagation();
-      setOpen(!nav.classList.contains("open"));
+      setOpen(!landingNav.classList.contains("is-open"));
     });
-
-    nav.querySelectorAll("a").forEach((a) => a.addEventListener("click", close));
-
+    landingNav.querySelectorAll("a").forEach((a) => a.addEventListener("click", close));
     document.addEventListener("click", (event) => {
-      if (!nav.classList.contains("open")) return;
+      if (!landingNav.classList.contains("is-open")) return;
       const target = event.target;
-      if (nav.contains(target) || toggle.contains(target)) return;
+      if (landingNav.contains(target) || landingToggle.contains(target)) return;
       close();
     });
-
     window.addEventListener("keydown", (e) => {
       if (e.key === "Escape") close();
     });
   }
 
-  /* —— Services carousel —— */
-  const track = document.getElementById("servicesTrack");
-  const prev = document.getElementById("svcPrev");
-  const next = document.getElementById("svcNext");
-  if (track && prev && next) {
-    const step = () => {
-      const card = track.querySelector(".svc-card");
-      if (!card) return track.clientWidth;
-      const gap = parseFloat(getComputedStyle(track).gap || "0") || 0;
-      return card.getBoundingClientRect().width + gap;
-    };
-    const rtl = getComputedStyle(track).direction === "rtl";
-    const delta = (dir) => {
-      const d = step();
-      return rtl ? (dir === "next" ? -d : d) : (dir === "next" ? d : -d);
-    };
-    prev.addEventListener("click", () => track.scrollBy({ left: delta("prev"), behavior: "smooth" }));
-    next.addEventListener("click", () => track.scrollBy({ left: delta("next"), behavior: "smooth" }));
+  /* —— Specialty marquee: duplicate group for seamless L→R loop —— */
+  const specialtyTrack = document.getElementById("specialtyTrack");
+  if (specialtyTrack) {
+    const group = specialtyTrack.querySelector(".marquee-group");
+    if (group) {
+      const clone = group.cloneNode(true);
+      clone.setAttribute("aria-hidden", "true");
+      clone.querySelectorAll("a").forEach((a) => a.setAttribute("tabindex", "-1"));
+      clone.querySelectorAll("[id]").forEach((node) => {
+        const oldId = node.id;
+        const nextId = `${oldId}-b`;
+        node.id = nextId;
+        clone.querySelectorAll(`[fill="url(#${oldId})"]`).forEach((el) => {
+          el.setAttribute("fill", `url(#${nextId})`);
+        });
+      });
+      specialtyTrack.appendChild(clone);
+    }
+  }
+
+  /* —— 3D hover on landing nav links —— */
+  if (!reduceMotion && finePointer) {
+    document.querySelectorAll(".nav-3d").forEach((el) => {
+      el.addEventListener("pointermove", (event) => {
+        const rect = el.getBoundingClientRect();
+        const x = (event.clientX - rect.left) / rect.width - 0.5;
+        const y = (event.clientY - rect.top) / rect.height - 0.5;
+        el.style.transform =
+          `translateZ(22px) rotateX(${(-y * 14).toFixed(2)}deg) rotateY(${(x * 16).toFixed(2)}deg)`;
+      });
+      el.addEventListener("pointerleave", () => {
+        el.style.transform = "";
+      });
+    });
   }
 
   /* —— Hero: scroll-scrubbed frames (progressive load, capped concurrency) —— */
