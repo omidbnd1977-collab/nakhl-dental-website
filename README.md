@@ -2,67 +2,45 @@
 
 لندینگ فارسی RTL برای **دکتر صحرا عباسی** در کلینیک نخل قشم.
 
-این پروژه یک **وب‌سایت استاتیک عمومی** است (نه داشبورد و نه اپ لاگین‌دار): ریشه ریپو همان صفحهٔ اصلی است (`index.html`).
+صفحهٔ اصلی سه بخش دارد (الهام‌گرفته از چیدمان YU.MED):
 
-هیرو: اسکراب سینمایی با GSAP ScrollTrigger روی `assets/videos/clinic-tour.mp4` (تمام‌صفحه، pin شده، بدون autoplay). `progress` مستقیماً به `video.currentTime` نگاشت می‌شود.
+1. **Hero** — پس‌زمینه سرمه‌ای، تصویر لبخند، تیتر و دکمه‌های تماس/رزرو  
+2. **Services** — پس‌زمینه کرم و کارت‌های تصویری خدمات  
+3. **Clinic Experience** — فضای کلینیک، پذیرش/اتاق درمان و اطلاعات واقعی  
+
+ریشهٔ ریپو همان صفحهٔ اصلی است (`index.html`). اسکراب ویدیویی GSAP حذف شده است.
+
+## پیش‌نمایش
+
+| میزبان | آدرس |
+|---|---|
+| GitHub Pages (نسخهٔ فعلی) | https://omidbnd1977-collab.github.io/nakhl-dental-website/ |
+| Render (شاخهٔ refresh) | https://nakhl-dental-refresh.onrender.com/ |
+
+اگر Render هنوز هیرو قدیمی (ویدیو/اسکرول) نشان می‌دهد، در [داشبورد Render](https://dashboard.render.com) سرویس `nakhl-dental-refresh` را باز کنید و **Manual Deploy → Deploy latest commit** بزنید (شاخهٔ `main` یا `design/nakhl-premium-refresh`). فایل `render.yaml` در ریشهٔ ریپو دستور اجرای صحیح (`0.0.0.0` + `PORT`) را تعریف می‌کند.
 
 ## اجرای محلی
 
 ```bash
-git clone https://github.com/<OWNER>/nakhl-dental-website.git
+git clone https://github.com/omidbnd1977-collab/nakhl-dental-website.git
 cd nakhl-dental-website
 python3 serve.py --port 3847
 ```
 
-سپس `http://localhost:3847` را باز کنید. سرور محلی از HTTP Range، gzip و Cache-Control پشتیبانی می‌کند.
+سپس `http://localhost:3847` را باز کنید.
 
-ویدیوی هیرو (`assets/videos/clinic-tour.mp4`، حدود ۲٫۳ مگابایت) داخل همین ریپو است و نیازی به Git LFS ندارد.
+## استقرار
 
-## بهینه‌سازی عملکرد
+هاست استاتیک (Cloudflare Pages / Netlify / Vercel / GitHub Pages) کافی است؛ ریشهٔ استقرار پوشه‌ای است که `index.html` دارد.
 
-- ویدیوی هیرو: H.264 720p با `faststart` و keyframeهای پرتکرار برای اسکراب
-- پوستر سبک WebP برای نمایش فوری هیرو
-- تصاویر صفحه با WebP (+ JPG fallback) و `loading="lazy"`
-- CSS/JS فشرده (`style.min.css` / `script.min.js`)
-- فونت‌ها فقط وزن‌های مورد نیاز
+برای Render به‌صورت Web Service:
 
-## نوع استقرار (Deployment type)
-
-| گزینه | مناسب برای | لاگین؟ | دامنه سفارشی |
-|---|---|---|---|
-| **هاست استاتیک** (پیشنهادی): Cloudflare Pages / Netlify / Vercel / GitHub Pages | وب‌سایت عمومی کلینیک | خیر | بله (`nakhl-dental.com`) |
-| Cursor Apps با **Public** | پیش‌نمایش سریع روی لینک Cursor | خیر | خیر (مستند نشده) |
-| Cursor Apps با **Private/Team** | فقط خودتان/تیم | بله (صفحه ورود Cursor) | خیر |
-
-برای سایت واقعی کلینیک، **هاست استاتیک + دامنه خودتان** را انتخاب کنید. ریشه استقرار باید پوشهٔ همین پروژه باشد (همان جایی که `index.html` هست).
-
-## اتصال دامنه سفارشی (مثلاً `nakhl-dental.com`)
-
-### ۱) استقرار روی Cloudflare Pages (پیشنهادی)
-
-1. در [Cloudflare Dashboard](https://dash.cloudflare.com) → **Workers & Pages** → **Create** → **Pages** → اتصال به ریپوی `nakhl-dental`.
-2. تنظیمات بیلد:
-   - **Framework preset:** None / Static
-   - **Build command:** خالی
-   - **Build output directory:** `/` (ریشه پروژه)
-3. Deploy کنید. یک آدرس موقت مثل `*.pages.dev` می‌گیرید.
-
-### ۲) اتصال `nakhl-dental.com`
-
-1. دامنه را در Cloudflare ثبت/منتقل کنید (یا DNS را به Cloudflare بدهید).
-2. در پروژهٔ Pages → **Custom domains** → `nakhl-dental.com` و در صورت نیاز `www.nakhl-dental.com` را اضافه کنید.
-3. DNS معمولاً این‌طور تنظیم می‌شود (Cloudflare خودش پیشنهاد می‌دهد):
-   - `@` → CNAME به آدرس Pages شما (یا A/AAAA طبق راهنمای Cloudflare)
-   - `www` → CNAME به همان پروژهٔ Pages
-4. SSL/HTTPS به‌صورت خودکار فعال می‌شود.
-
-### جایگزین‌ها
-
-- **Netlify:** New site from Git → publish directory = `.` → Domain management → Add custom domain.
-- **Vercel:** Import repo → Framework = Other → Output = `.` → Domains → Add `nakhl-dental.com` و رکوردهای DNS را طبق پنل ست کنید.
+- **Build command:** خالی / `true`
+- **Start command:** `python3 serve.py --host 0.0.0.0`
+- متغیر `PORT` را Render خودش می‌گذارد
 
 ## تماس
 
-- واتساپ: `09120153255`
-- تلفن: `07633388181` / `07633387171`
-- اینستاگرام: [@qeshm.clinic.nakhl](https://instagram.com/qeshm.clinic.nakhl)
+- واتساپ: `09120153255` → https://wa.me/989120153255  
+- تلفن: `07633388181` / `07633387171`  
+- اینستاگرام: [@qeshm.clinic](https://instagram.com/qeshm.clinic)
