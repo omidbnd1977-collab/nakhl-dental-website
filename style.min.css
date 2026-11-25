@@ -113,7 +113,8 @@ h1, h2, h3 {
 
 .hero {
   position: relative;
-  overflow: hidden;
+  /* Keep decorative orbs clipped on the visual only — not the nav dropdown */
+  overflow: visible;
   padding: 1.1rem 0 4rem;
   color: #fff;
   background:
@@ -122,6 +123,8 @@ h1, h2, h3 {
 }
 
 .nav-wrap {
+  position: relative;
+  z-index: 40;
   width: min(100% - 2.75rem, var(--container));
   margin: 0 auto 2.4rem;
 }
@@ -168,6 +171,8 @@ h1, h2, h3 {
 
 .burger {
   display: none;
+  position: relative;
+  z-index: 50;
   width: 44px;
   height: 44px;
   border-radius: 12px;
@@ -178,6 +183,8 @@ h1, h2, h3 {
   align-items: center;
   gap: 5px;
   cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
 }
 .burger span {
   width: 16px;
@@ -237,6 +244,8 @@ h1, h2, h3 {
   width: 100%;
   max-width: 620px;
   justify-self: stretch;
+  /* room for inset photo that hangs below the main frame */
+  margin-bottom: 1.5rem;
 }
 .hero-photo {
   width: 100%;
@@ -567,12 +576,11 @@ h1, h2, h3 {
 
 @media (max-width: 899px) {
   .burger { display: inline-flex; }
-  .nav-wrap { position: relative; }
   .nav-links {
     position: absolute;
     inset-inline: 0;
-    top: 4.35rem;
-    z-index: 30;
+    top: calc(100% + 0.45rem);
+    z-index: 60;
     display: none;
     flex-direction: column;
     align-items: stretch;
@@ -583,7 +591,8 @@ h1, h2, h3 {
     border-radius: 14px;
     box-shadow: var(--shadow);
   }
-  .nav-links.open { display: flex; }
+  .nav-links.open,
+  .nav-wrap.is-open .nav-links { display: flex; }
   .nav-links a {
     min-height: 44px;
     display: flex;
