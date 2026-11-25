@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "Public static website for Nakhl Dental Clinic (Dr. Sahra Abbasi)",
   "scripts": {
-    "start": "python3 serve.py --host 127.0.0.1 --port 3847",
-    "serve": "python3 serve.py --host 127.0.0.1 --port 3847"
+    "start": "python3 serve.py --host 0.0.0.0 --port ${PORT:-3847}",
+    "serve": "python3 serve.py --host 0.0.0.0 --port ${PORT:-3847}"
   }
 }
