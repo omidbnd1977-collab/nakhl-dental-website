@@ -1319,6 +1319,14 @@ h1, h2, h3 {
   max-width: none;
   transition: transform 0.55s var(--ease), filter 0.45s;
 }
+.spec-media--art {
+  background: linear-gradient(160deg, #f7f7f7, #ebebeb);
+}
+.spec-media--art img {
+  object-fit: contain;
+  object-position: center;
+  padding: 0.35rem;
+}
 .spec-sheen {
   position: absolute;
   inset: 0;
