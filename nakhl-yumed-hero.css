@@ -1,0 +1,79 @@
+/* YU.MED-inspired hero adaptation for Nakhl Dental — isolated to the hero */
+.nakhl-yumed-hero{
+  --yu-navy:#15233a;--yu-navy-deep:#0f1a2c;--yu-navy-soft:#243552;
+  --yu-cream:#f6f1e8;--yu-accent:#c4a574;--yu-white:#fffcf7;
+  height:auto!important;min-height:0!important;max-height:none!important;
+  overflow:visible!important;background:linear-gradient(160deg,var(--yu-navy-deep),var(--yu-navy) 55%,var(--yu-navy-soft))!important;
+  color:#fff!important;padding:0 0 clamp(3.2rem,6vw,5rem)!important;
+}
+.nakhl-yumed-hero .nakhl-hero-inner{
+  height:auto!important;min-height:0!important;max-height:none!important;width:100%!important;
+  position:relative!important;overflow:visible!important;padding:1.1rem 0 0!important;
+}
+.nakhl-yumed-hero .nav-wrap{
+  position:relative!important;inset:auto!important;z-index:20!important;
+  width:min(100% - 2.5rem,1120px)!important;margin:0 auto clamp(2rem,4vw,3.2rem)!important;padding:0!important;
+}
+.nakhl-yumed-hero .nav-bar{
+  width:100%!important;min-height:56px!important;margin:0!important;padding:0!important;
+  display:flex!important;align-items:center!important;justify-content:space-between!important;gap:1rem!important;
+  border:0!important;border-radius:0!important;background:transparent!important;backdrop-filter:none!important;box-shadow:none!important;
+}
+.nakhl-yumed-hero .logo{display:flex!important;align-items:center!important;gap:.65rem!important;min-width:145px!important;color:#fff!important;text-decoration:none!important}
+.nakhl-yumed-hero .logo img{width:34px!important;height:38px!important;filter:brightness(0) invert(1)!important}
+.nakhl-yumed-hero .logo strong{display:block!important;color:#fff!important;font-family:'Vazirmatn',sans-serif!important;font-size:1rem!important;font-weight:800!important;line-height:1.2!important}
+.nakhl-yumed-hero .logo small{display:block!important;color:#d5dbe6!important;font-size:.68rem!important;margin-top:.18rem!important}
+.nakhl-yumed-hero .nav-links{position:static!important;display:flex!important;align-items:center!important;gap:clamp(.55rem,1.7vw,1.35rem)!important;white-space:nowrap!important;flex-wrap:nowrap!important;background:transparent!important;border:0!important;padding:0!important;box-shadow:none!important}
+.nakhl-yumed-hero .nav-links a{color:#d5dbe6!important;font-size:.78rem!important;font-weight:500!important;text-decoration:none!important}
+.nakhl-yumed-hero .nav-links a:hover,.nakhl-yumed-hero .nav-links a.is-active{color:#fff!important}
+.nakhl-yumed-hero .nav-end{display:flex!important;align-items:center!important;gap:.65rem!important}
+.nakhl-yumed-hero .btn{min-height:44px!important;padding:.7rem 1.3rem!important;border-radius:999px!important;font-size:.88rem!important;font-weight:700!important;text-decoration:none!important;box-shadow:none!important}
+.nakhl-yumed-hero .btn-light,.nakhl-yumed-hero .btn-filled{background:var(--yu-cream)!important;color:var(--yu-navy)!important;border:1px solid var(--yu-cream)!important}
+.nakhl-yumed-hero .btn-outline{background:transparent!important;color:#fff!important;border:1.5px solid rgba(255,255,255,.58)!important}
+.nakhl-yumed-hero .burger{display:none!important;width:44px!important;height:44px!important;border-radius:12px!important;border:1px solid rgba(255,255,255,.35)!important;background:rgba(255,255,255,.06)!important;flex-direction:column!important;justify-content:center!important;align-items:center!important;gap:5px!important}
+.nakhl-yumed-hero .burger span{width:16px!important;height:1.5px!important;background:#fff!important;border-radius:2px!important}
+.nakhl-yumed-hero .hero-grid{
+  width:min(100% - 2.5rem,1120px)!important;margin-inline:auto!important;
+  display:grid!important;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr)!important;
+  gap:clamp(1.5rem,4vw,3rem)!important;align-items:center!important;
+}
+.nakhl-yumed-hero .hero-copy{order:0!important;min-width:0!important;text-align:right!important}
+.nakhl-yumed-hero .hero-kicker{margin:0 0 .8rem!important;color:#d9c6a5!important;font-size:.84rem!important;font-weight:700!important}
+.nakhl-yumed-hero .hero-copy h1{margin:0 0 1rem!important;color:#fff!important;font-family:'Vazirmatn',sans-serif!important;font-size:clamp(2.8rem,6vw,4.7rem)!important;font-weight:800!important;line-height:1.35!important;letter-spacing:-.04em!important}
+.nakhl-yumed-hero .hero-copy h1 em{font-style:normal!important;font-weight:800!important;color:#e8d9c1!important}
+.nakhl-yumed-hero .hero-lead{max-width:34rem!important;margin:0 0 1.5rem!important;color:#d5dbe6!important;font-size:1rem!important;line-height:2!important}
+.nakhl-yumed-hero .hero-actions{display:flex!important;flex-wrap:wrap!important;gap:.75rem!important;justify-content:flex-start!important}
+.nakhl-yumed-hero .hero-visual{position:relative!important;justify-self:start!important;width:min(100%,460px)!important;min-width:0!important;margin:0!important}
+.nakhl-yumed-hero .hero-photo{display:block!important;width:100%!important;aspect-ratio:4/5!important;max-height:none!important;object-fit:cover!important;object-position:center!important;border-radius:26px!important;box-shadow:0 18px 40px rgba(0,0,0,.2)!important}
+.nakhl-yumed-hero .hero-chip{position:absolute!important;right:-4%!important;bottom:38%!important;top:auto!important;max-width:11.5rem!important;padding:.85rem 1rem!important;border-radius:16px!important;background:rgba(255,252,247,.96)!important;color:#1a2333!important;font-size:.8rem!important;line-height:1.7!important;font-weight:700!important;box-shadow:0 8px 20px rgba(15,26,44,.12)!important}
+.nakhl-yumed-hero .hero-inset{position:absolute!important;left:-7%!important;bottom:-6%!important;width:42%!important;margin:0!important;border:3px solid rgba(255,252,247,.95)!important;border-radius:16px!important;overflow:hidden!important;box-shadow:0 12px 28px rgba(15,26,44,.18)!important}
+.nakhl-yumed-hero .hero-inset img{display:block!important;width:100%!important;aspect-ratio:4/3!important;object-fit:cover!important}
+.nakhl-yumed-hero .floater{position:absolute!important;border-radius:50%!important;border:1px solid rgba(255,255,255,.28)!important;background:rgba(255,255,255,.06)!important;pointer-events:none!important}
+.nakhl-yumed-hero .floater-a{width:72px!important;height:72px!important;right:-8px!important;bottom:22%!important}
+.nakhl-yumed-hero .floater-b{width:42px!important;height:42px!important;left:-10px!important;bottom:8%!important}
+@media(max-width:899px){
+ .nakhl-yumed-hero .burger{display:inline-flex!important}
+ .nakhl-yumed-hero .nav-links{position:absolute!important;top:4.4rem!important;right:0!important;left:0!important;z-index:30!important;display:none!important;flex-direction:column!important;align-items:stretch!important;gap:.2rem!important;padding:.65rem!important;background:var(--yu-navy-soft)!important;border:1px solid rgba(255,255,255,.18)!important;border-radius:14px!important;box-shadow:0 12px 28px rgba(0,0,0,.18)!important}
+ .nakhl-yumed-hero .nav-links.open{display:flex!important}
+ .nakhl-yumed-hero .nav-links a{display:flex!important;align-items:center!important;min-height:44px!important;padding:.6rem .8rem!important;color:#fff!important;font-size:.9rem!important}
+ .nakhl-yumed-hero .hero-grid{grid-template-columns:minmax(0,1fr) minmax(0,.95fr)!important;gap:1.5rem!important}
+ .nakhl-yumed-hero .hero-visual{width:100%!important}
+ .nakhl-yumed-hero .hero-chip{right:-2%!important;max-width:9.5rem!important;font-size:.72rem!important}
+}
+@media(max-width:640px){
+ .nakhl-yumed-hero{padding-bottom:3.2rem!important}
+ .nakhl-yumed-hero .nav-wrap{width:calc(100% - 2rem)!important;margin-bottom:2rem!important}
+ .nakhl-yumed-hero .nav-bar{gap:.5rem!important}
+ .nakhl-yumed-hero .nav-end .btn-nav{display:none!important}
+ .nakhl-yumed-hero .hero-grid{grid-template-columns:1fr!important;gap:2.2rem!important}
+ .nakhl-yumed-hero .hero-copy{grid-row:1!important}
+ .nakhl-yumed-hero .hero-copy h1{font-size:clamp(2.5rem,11vw,3.3rem)!important;line-height:1.3!important}
+ .nakhl-yumed-hero .hero-lead{font-size:.92rem!important}
+ .nakhl-yumed-hero .hero-actions{flex-direction:row!important;align-items:stretch!important}
+ .nakhl-yumed-hero .hero-actions .btn{flex:1 1 auto!important}
+ .nakhl-yumed-hero .hero-visual{grid-row:2!important;justify-self:center!important;width:min(84%,360px)!important;margin-inline:auto!important}
+ .nakhl-yumed-hero .hero-photo{aspect-ratio:4/4.7!important}
+ .nakhl-yumed-hero .hero-chip{right:-8%!important;bottom:34%!important;max-width:9rem!important}
+ .nakhl-yumed-hero .hero-inset{left:-9%!important;bottom:-5%!important}
+}
+@media(prefers-reduced-motion:reduce){.nakhl-yumed-hero *{transition:none!important}}
