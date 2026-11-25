@@ -58,130 +58,92 @@
     next.addEventListener("click", () => track.scrollBy({ left: delta("next"), behavior: "smooth" }));
   }
 
-  /* —— Frame-accurate scroll-scrub hero video —— */
+  /* —— Exact-quality frame scrub (from original PixVerse file) —— */
   const scrollRoot = document.getElementById("heroScroll");
-  const video = document.getElementById("heroVideo");
+  const frameEl = document.getElementById("heroFrame");
   const progressBar = document.getElementById("heroProgressBar");
   const hint = document.getElementById("heroScrollHint");
   const copyPanel = document.querySelector(".hero-copy-panel");
 
-  if (scrollRoot && video) {
-    const clamp01 = (n) => Math.min(1, Math.max(0, n));
+  if (scrollRoot && frameEl) {
+    const FRAME_COUNT = 121;
+    const PAD = 3;
+    // Pixels of scroll per frame — locks motion 1:1 with finger/wheel
+    const pxPerFrame = () =>
+      (window.matchMedia("(max-width: 899px)").matches ? 11 : 14);
 
-    let duration = 0;
-    let ready = false;
-    let seeking = false;
-    let targetTime = 0;
-    let displayedTime = 0;
+    const clamp01 = (n) => Math.min(1, Math.max(0, n));
+    const frameSrc = (i) =>
+      `assets/hero-frames/f-${String(i + 1).padStart(PAD, "0")}.jpg`;
+
+    const cache = new Array(FRAME_COUNT);
+    let loaded = 0;
+    let current = 0;
     let raf = 0;
 
-    const scrollMul = () =>
-      (window.matchMedia("(max-width: 899px)").matches ? 2.05 : 2.35);
-
     const setScrollHeight = () => {
-      // Tighter mapping: ~2–2.35 viewports so video feels locked to scroll
-      scrollRoot.style.height = `${scrollMul() * 100}vh`;
+      const travel = (FRAME_COUNT - 1) * pxPerFrame();
+      scrollRoot.style.height = `${window.innerHeight + travel}px`;
     };
     setScrollHeight();
 
+    // Preload every original frame into memory
+    for (let i = 0; i < FRAME_COUNT; i++) {
+      const img = new Image();
+      img.decoding = "async";
+      img.src = frameSrc(i);
+      img.onload = img.onerror = () => {
+        loaded += 1;
+      };
+      cache[i] = img;
+    }
+
     const progressFromScroll = () => {
-      const total = Math.max(1, scrollRoot.offsetHeight - window.innerHeight);
-      const top = scrollRoot.getBoundingClientRect().top;
-      return clamp01(-top / total);
+      const travel = Math.max(1, scrollRoot.offsetHeight - window.innerHeight);
+      return clamp01(-scrollRoot.getBoundingClientRect().top / travel);
+    };
+
+    const showFrame = (index) => {
+      const i = Math.min(FRAME_COUNT - 1, Math.max(0, index | 0));
+      if (i === current && frameEl.getAttribute("data-i") === String(i)) return;
+      current = i;
+      frameEl.setAttribute("data-i", String(i));
+      const cached = cache[i];
+      if (cached && cached.complete && cached.naturalWidth) {
+        frameEl.src = cached.src;
+      } else {
+        frameEl.src = frameSrc(i);
+      }
     };
 
     const syncChrome = (p) => {
       if (progressBar) progressBar.style.width = `${(p * 100).toFixed(2)}%`;
-      if (hint) hint.style.opacity = p > 0.06 ? "0" : "1";
+      if (hint) hint.style.opacity = p > 0.04 ? "0" : "1";
       if (copyPanel) {
-        const fade = clamp01((p - 0.78) / 0.22);
-        copyPanel.style.opacity = String(1 - fade * 0.4);
-        copyPanel.style.transform = `translate3d(0, ${(-16 * fade).toFixed(1)}px, 0)`;
+        const fade = clamp01((p - 0.82) / 0.18);
+        copyPanel.style.opacity = String(1 - fade * 0.45);
+        copyPanel.style.transform = `translate3d(0, ${(-14 * fade).toFixed(1)}px, 0)`;
       }
     };
-
-    const seekTo = (t) => {
-      const next = Math.min(Math.max(t, 0), Math.max(duration - 0.001, 0));
-      if (Math.abs(next - displayedTime) < 0.0005) return;
-      if (seeking) {
-        targetTime = next;
-        return;
-      }
-      seeking = true;
-      displayedTime = next;
-      try {
-        video.currentTime = next;
-      } catch (_) {
-        seeking = false;
-      }
-    };
-
-    video.addEventListener("seeked", () => {
-      seeking = false;
-      // If scroll moved during seek, catch up immediately
-      if (Math.abs(targetTime - displayedTime) > 0.001) {
-        seekTo(targetTime);
-      }
-    });
 
     const tick = () => {
       raf = 0;
-      if (!ready || !duration) return;
       const p = progressFromScroll();
       syncChrome(p);
-
       if (reduceMotion) {
-        seekTo(Math.min(duration * 0.92, duration - 0.05));
+        showFrame(FRAME_COUNT - 1);
         return;
       }
-
-      targetTime = p * duration;
-      // Snap to nearest frame (~24fps) for cleaner scrub
-      const frame = 1 / 24;
-      const snapped = Math.round(targetTime / frame) * frame;
-      seekTo(snapped);
-
-      // Keep looping while hero is in view and not settled
-      const inHero = p > 0 && p < 1;
-      if (inHero || seeking || Math.abs(targetTime - displayedTime) > 0.001) {
-        raf = requestAnimationFrame(tick);
-      }
+      const index = Math.round(p * (FRAME_COUNT - 1));
+      showFrame(index);
     };
 
     const kick = () => {
       if (!raf) raf = requestAnimationFrame(tick);
     };
 
-    const markReady = () => {
-      duration = video.duration || 0;
-      if (!duration || !Number.isFinite(duration)) return;
-      ready = true;
-      video.pause();
-      try {
-        video.currentTime = 0;
-      } catch (_) {}
-      kick();
-    };
-
-    video.addEventListener("loadedmetadata", markReady);
-    if (video.readyState >= 1) markReady();
-
-    // Prefetch whole clip into buffer for scrubbing
-    const warmBuffer = () => {
-      if (!duration) return;
-      const end = () =>
-        video.buffered.length && video.buffered.end(video.buffered.length - 1);
-      if (end() >= duration - 0.15) return;
-      // Nudge browser to keep downloading
-      video.preload = "auto";
-    };
-    video.addEventListener("progress", warmBuffer);
-    video.addEventListener("canplaythrough", () => {
-      video.pause();
-      kick();
-    });
-
     window.addEventListener("scroll", kick, { passive: true });
+    window.addEventListener("touchmove", kick, { passive: true });
     window.addEventListener(
       "resize",
       () => {
@@ -191,8 +153,8 @@
       { passive: true }
     );
 
-    // Touch scroll also fires scroll; extra pointermove helps some mobile browsers
-    window.addEventListener("touchmove", kick, { passive: true });
+    showFrame(0);
+    kick();
   }
 
   /* —— 3D tilt on hover (non-hero panels) —— */
