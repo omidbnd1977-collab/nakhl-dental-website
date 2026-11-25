@@ -189,15 +189,12 @@
     return true;
   };
 
-  const bootHero = () => {
-    if (initHeroScrub()) return;
-    let tries = 0;
-    const timer = setInterval(() => {
-      tries += 1;
-      if (initHeroScrub() || tries > 80) clearInterval(timer);
-    }, 50);
-  };
-  bootHero();
+  // The current YU.MED-style editorial hero is a normal-flow section,
+  // not the legacy video-scrub hero. Only initialize ScrollTrigger when
+  // the actual scrub video exists in the markup.
+  if (heroVideo && scrollHero && heroPin) {
+    initHeroScrub();
+  }
 
   /* Mobile nav */
   if (navToggle && nav) {
