@@ -50,7 +50,7 @@
 
   <!-- 1. Hero — scroll-scrubbed luxury clinic video -->
   <header class="hero hero--video" id="top">
-    <div class="hero-scroll" id="heroScroll" data-scroll-height="320">
+    <div class="hero-scroll" id="heroScroll">
       <div class="hero-pin" id="heroPin">
         <div class="hero-media" aria-hidden="true">
           <video
@@ -58,9 +58,11 @@
             class="hero-video"
             muted
             playsinline
+            webkit-playsinline
             preload="auto"
             poster="assets/images/hero-lux-poster.jpg"
             disablepictureinpicture
+            controlslist="nodownload noplaybackrate noremoteplayback"
           >
             <source src="assets/videos/nakhl-hero-lux.mp4" type="video/mp4" />
           </video>

@@ -58,7 +58,7 @@
     next.addEventListener("click", () => track.scrollBy({ left: delta("next"), behavior: "smooth" }));
   }
 
-  /* —— Scroll-scrubbed hero video (no GSAP) —— */
+  /* —— Frame-accurate scroll-scrub hero video —— */
   const scrollRoot = document.getElementById("heroScroll");
   const video = document.getElementById("heroVideo");
   const progressBar = document.getElementById("heroProgressBar");
@@ -66,92 +66,139 @@
   const copyPanel = document.querySelector(".hero-copy-panel");
 
   if (scrollRoot && video) {
-    const vhMul = Number(scrollRoot.dataset.scrollHeight || 320) / 100;
-    const setScrollHeight = () => {
-      scrollRoot.style.height = `${Math.max(vhMul, 2.2) * 100}vh`;
-    };
-    setScrollHeight();
+    const clamp01 = (n) => Math.min(1, Math.max(0, n));
 
     let duration = 0;
     let ready = false;
-    let ticking = false;
-    let lastTime = -1;
+    let seeking = false;
+    let targetTime = 0;
+    let displayedTime = 0;
+    let raf = 0;
 
-    const clamp01 = (n) => Math.min(1, Math.max(0, n));
+    const scrollMul = () =>
+      (window.matchMedia("(max-width: 899px)").matches ? 2.05 : 2.35);
+
+    const setScrollHeight = () => {
+      // Tighter mapping: ~2–2.35 viewports so video feels locked to scroll
+      scrollRoot.style.height = `${scrollMul() * 100}vh`;
+    };
+    setScrollHeight();
 
     const progressFromScroll = () => {
-      const total = scrollRoot.offsetHeight - window.innerHeight;
-      if (total <= 0) return 0;
-      const scrolled = Math.min(Math.max(-scrollRoot.getBoundingClientRect().top, 0), total);
-      return clamp01(scrolled / total);
+      const total = Math.max(1, scrollRoot.offsetHeight - window.innerHeight);
+      const top = scrollRoot.getBoundingClientRect().top;
+      return clamp01(-top / total);
     };
 
-    const applyFrame = () => {
-      ticking = false;
+    const syncChrome = (p) => {
+      if (progressBar) progressBar.style.width = `${(p * 100).toFixed(2)}%`;
+      if (hint) hint.style.opacity = p > 0.06 ? "0" : "1";
+      if (copyPanel) {
+        const fade = clamp01((p - 0.78) / 0.22);
+        copyPanel.style.opacity = String(1 - fade * 0.4);
+        copyPanel.style.transform = `translate3d(0, ${(-16 * fade).toFixed(1)}px, 0)`;
+      }
+    };
+
+    const seekTo = (t) => {
+      const next = Math.min(Math.max(t, 0), Math.max(duration - 0.001, 0));
+      if (Math.abs(next - displayedTime) < 0.0005) return;
+      if (seeking) {
+        targetTime = next;
+        return;
+      }
+      seeking = true;
+      displayedTime = next;
+      try {
+        video.currentTime = next;
+      } catch (_) {
+        seeking = false;
+      }
+    };
+
+    video.addEventListener("seeked", () => {
+      seeking = false;
+      // If scroll moved during seek, catch up immediately
+      if (Math.abs(targetTime - displayedTime) > 0.001) {
+        seekTo(targetTime);
+      }
+    });
+
+    const tick = () => {
+      raf = 0;
       if (!ready || !duration) return;
       const p = progressFromScroll();
-      if (progressBar) progressBar.style.width = `${(p * 100).toFixed(2)}%`;
-      if (hint) hint.style.opacity = p > 0.08 ? "0" : "0.9";
-      if (copyPanel) {
-        const fade = clamp01((p - 0.72) / 0.28);
-        copyPanel.style.opacity = String(1 - fade * 0.35);
-        copyPanel.style.transform = `translateY(${(-12 * fade).toFixed(1)}px)`;
-      }
+      syncChrome(p);
 
       if (reduceMotion) {
-        video.currentTime = Math.min(duration * 0.85, duration - 0.05);
+        seekTo(Math.min(duration * 0.92, duration - 0.05));
         return;
       }
 
-      const t = Math.min(duration - 0.04, p * duration);
-      if (Math.abs(t - lastTime) < 0.012) return;
-      lastTime = t;
-      try {
-        video.currentTime = t;
-      } catch (_) {
-        /* ignore seek while not ready */
+      targetTime = p * duration;
+      // Snap to nearest frame (~24fps) for cleaner scrub
+      const frame = 1 / 24;
+      const snapped = Math.round(targetTime / frame) * frame;
+      seekTo(snapped);
+
+      // Keep looping while hero is in view and not settled
+      const inHero = p > 0 && p < 1;
+      if (inHero || seeking || Math.abs(targetTime - displayedTime) > 0.001) {
+        raf = requestAnimationFrame(tick);
       }
     };
 
-    const requestTick = () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(applyFrame);
+    const kick = () => {
+      if (!raf) raf = requestAnimationFrame(tick);
     };
 
-    const onMeta = () => {
+    const markReady = () => {
       duration = video.duration || 0;
       if (!duration || !Number.isFinite(duration)) return;
       ready = true;
       video.pause();
-      video.currentTime = 0;
-      requestTick();
+      try {
+        video.currentTime = 0;
+      } catch (_) {}
+      kick();
     };
 
-    video.addEventListener("loadedmetadata", onMeta);
-    if (video.readyState >= 1) onMeta();
+    video.addEventListener("loadedmetadata", markReady);
+    if (video.readyState >= 1) markReady();
 
-    // Warm decode for smoother scrubbing
-    video.addEventListener(
-      "canplay",
+    // Prefetch whole clip into buffer for scrubbing
+    const warmBuffer = () => {
+      if (!duration) return;
+      const end = () =>
+        video.buffered.length && video.buffered.end(video.buffered.length - 1);
+      if (end() >= duration - 0.15) return;
+      // Nudge browser to keep downloading
+      video.preload = "auto";
+    };
+    video.addEventListener("progress", warmBuffer);
+    video.addEventListener("canplaythrough", () => {
+      video.pause();
+      kick();
+    });
+
+    window.addEventListener("scroll", kick, { passive: true });
+    window.addEventListener(
+      "resize",
       () => {
-        video.pause();
+        setScrollHeight();
+        kick();
       },
-      { once: true }
+      { passive: true }
     );
 
-    window.addEventListener("scroll", requestTick, { passive: true });
-    window.addEventListener("resize", () => {
-      setScrollHeight();
-      requestTick();
-    }, { passive: true });
+    // Touch scroll also fires scroll; extra pointermove helps some mobile browsers
+    window.addEventListener("touchmove", kick, { passive: true });
   }
 
   /* —— 3D tilt on hover (non-hero panels) —— */
   if (reduceMotion || !finePointer) return;
 
-  const tilts = document.querySelectorAll(".tilt-3d");
-  tilts.forEach((el) => {
+  document.querySelectorAll(".tilt-3d").forEach((el) => {
     if (el.closest(".hero-pin")) return;
     const strength = Number(el.dataset.tiltStrength || 8);
     const max = Math.min(Math.max(strength, 4), 18);
