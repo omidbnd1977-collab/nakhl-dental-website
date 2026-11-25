@@ -19,6 +19,7 @@
   <link rel="preload" as="image" href="assets/images/clinic-tour-poster.webp" type="image/webp" fetchpriority="high" />
   <link rel="stylesheet" href="style.min.css" />
   <link rel="stylesheet" href="nakhl-refinement.css" />
+  <link rel="stylesheet" href="nakhl-yumed-hero.css" />
   <link rel="icon" href="assets/images/logo.svg" type="image/svg+xml" />
   <script type="application/ld+json">
   {
@@ -59,78 +60,52 @@
 <body>
   <a class="skip-link" href="#main">پرش به محتوا</a>
 
-  <!-- 1. Cinematic Hero -->
-  <header class="scroll-hero" id="top" aria-label="ورود سینمایی به کلینیک">
-    <div class="scroll-hero-pin">
-      <video
-        id="heroScrubVideo"
-        class="scroll-hero-video"
-        muted
-        playsinline
-        webkit-playsinline
-        preload="metadata"
-        poster="assets/images/clinic-tour-poster.jpg"
-        disablepictureinpicture
-        disableremoteplayback
-      >
-        <source src="assets/videos/clinic-tour.mp4" type="video/mp4" />
-      </video>
-      <picture>
-        <source srcset="assets/images/clinic-tour-poster.webp" type="image/webp" />
-        <img
-          id="heroPoster"
-          class="scroll-hero-poster"
-          src="assets/images/clinic-tour-poster.jpg"
-          alt="نمای بیرونی کلینیک دندانپزشکی نخل در قشم"
-          width="1280"
-          height="962"
-          decoding="async"
-          fetchpriority="high"
-        />
-      </picture>
-      <div class="scroll-hero-shade" aria-hidden="true"></div>
-
-      <div class="nav-wrap scroll-nav">
+  <!-- 1. YU.MED-inspired editorial hero -->
+  <header class="scroll-hero nakhl-yumed-hero" id="top" aria-label="کلینیک دندانپزشکی نخل">
+    <div class="scroll-hero-pin nakhl-hero-inner">
+      <div class="nav-wrap">
         <div class="nav-bar">
-          <a class="logo" href="#top">
+          <a class="logo" href="#top" aria-label="کلینیک نخل">
             <img src="assets/images/logo.svg" alt="" width="34" height="38" />
-            <span>
-              <strong>کلینیک نخل</strong>
-              <small>دکتر صحرا عباسی</small>
-            </span>
+            <span><strong>کلینیک نخل</strong><small>دکتر صحرا عباسی</small></span>
           </a>
-
           <nav class="nav-links" id="mainNav" aria-label="منوی اصلی">
-            <a href="#top" class="is-active">خانه</a>
             <a href="#intro">معرفی کلینیک</a>
             <a href="#services">خدمات</a>
             <a href="#doctor">پزشک</a>
             <a href="#experience">فضای کلینیک</a>
-            <a href="#trust">اطلاعات و راه‌های ارتباطی</a>
-            <a href="#contact">رزرو نوبت</a>
+            <a href="#trust">اطلاعات تماس</a>
           </nav>
-
           <div class="nav-end">
-            <a class="btn btn-light" href="#contact">رزرو نوبت</a>
-            <a class="btn btn-ghost-light nav-phone" href="tel:07633388181" aria-label="تماس">۰۷۶۳۳۳۸۸۱۸۱</a>
-            <button class="burger" id="navToggle" type="button" aria-expanded="false" aria-controls="mainNav" aria-label="منو">
+            <a class="btn btn-light btn-nav" href="#contact">رزرو نوبت</a>
+            <button class="burger" id="navToggle" type="button" aria-expanded="false" aria-controls="mainNav" aria-label="باز کردن منو">
               <span></span><span></span><span></span>
             </button>
           </div>
         </div>
       </div>
 
-      <div class="scroll-hero-copy" id="heroCopy">
-        <p class="hero-kicker">قشم · کلینیک دندانپزشکی نخل</p>
-        <h1>فراتر از<br /><em>یک لبخند.</em></h1>
-        <p>مراقبت زیبایی و ترمیمی با دقت بالا — مسیر درمان شخصی، آرام و شفاف.</p>
-        <div class="hero-actions">
-          <a class="btn btn-gold btn-lg" href="#contact">دریافت مشاوره</a>
-          <a class="btn btn-outline-light" href="https://wa.me/989120153255" target="_blank" rel="noopener noreferrer">واتساپ</a>
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <p class="hero-kicker">قشم · کلینیک دندانپزشکی نخل</p>
+          <h1>فراتر از یک<br /><em>لبخند.</em></h1>
+          <p class="hero-lead">مراقبت زیبایی و ترمیمی با دقت بالا؛ مسیری شخصی، آرام و شفاف برای سلامت و زیبایی لبخند شما.</p>
+          <div class="hero-actions">
+            <a class="btn btn-filled" href="#contact">دریافت مشاوره</a>
+            <a class="btn btn-outline" href="https://wa.me/989120153255" target="_blank" rel="noopener noreferrer">گفتگو در واتساپ</a>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <img class="hero-photo" src="assets/images/service-smile.jpg" alt="نمونه‌ای از لبخند سالم و زیبا" width="900" height="700" fetchpriority="high" />
+          <aside class="hero-chip">مراقبت دقیق و شخصی‌سازی‌شده برای هر لبخند</aside>
+          <figure class="hero-inset">
+            <img src="assets/images/clinic.jpg" alt="فضای کلینیک دندانپزشکی نخل" width="1400" height="900" />
+          </figure>
+          <span class="floater floater-a" aria-hidden="true"></span>
+          <span class="floater floater-b" aria-hidden="true"></span>
         </div>
       </div>
-
-      <p class="scroll-hint" id="scrollHint">برای ورود به کلینیک اسکرول کنید</p>
     </div>
   </header>
 
