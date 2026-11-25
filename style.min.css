@@ -868,16 +868,15 @@ h1, h2, h3 {
   display: grid;
   place-items: center;
   width: 58px;
-  height: 66px;
+  height: 58px;
   filter: drop-shadow(0 12px 22px rgba(201, 162, 39, 0.4));
   transform: translateZ(20px);
 }
 .footer-logo-mark img {
-  width: 54px;
-  height: auto;
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
   max-width: none;
-  /* shift green logo toward gold like the mockup */
-  filter: sepia(0.85) saturate(1.35) hue-rotate(5deg) brightness(1.15);
 }
 .footer-logo strong {
   display: block;
@@ -1305,8 +1304,9 @@ h1, h2, h3 {
   transform-style: preserve-3d;
 }
 .landing-logo img {
-  width: 42px;
-  height: auto;
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
   filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.35));
 }
 .landing-logo strong {
