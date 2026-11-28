@@ -17,10 +17,10 @@ from urllib.parse import unquote, urlparse
 ROOT = Path(__file__).resolve().parent
 RANGE_RE = re.compile(r"bytes=(\d*)-(\d*)")
 
-# Long-lived cache for immutable-ish static assets; short for HTML.
+# Long-lived cache for immutable-ish static assets; never cache HTML shell.
 CACHE_LONG = "public, max-age=31536000, immutable"
-CACHE_MED = "public, max-age=300, must-revalidate"
-CACHE_HTML = "public, max-age=60, must-revalidate"
+CACHE_MED = "public, max-age=120, must-revalidate"
+CACHE_HTML = "no-store, no-cache, must-revalidate, max-age=0"
 
 GZIP_TYPES = {
     "text/html",
@@ -139,6 +139,11 @@ class RangeHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Cache-Control", cache)
         self.send_header("Vary", "Accept-Encoding")
+        if path.suffix.lower() in {".html", ".htm"}:
+            self.send_header("Pragma", "no-cache")
+            self.send_header("Expires", "0")
+            self.send_header("CDN-Cache-Control", "no-store")
+            self.send_header("Cloudflare-CDN-Cache-Control", "no-store")
         if encoding:
             self.send_header("Content-Encoding", encoding)
         self.end_headers()

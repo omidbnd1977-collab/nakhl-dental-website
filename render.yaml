@@ -5,6 +5,8 @@ services:
     runtime: python
     plan: free
     region: oregon
+    # Keep Render dashboard on this same branch (or design/nakhl-premium-refresh —
+    # both track the Cursor app landing). Manual Deploy if auto-deploy stalls.
     branch: main
     buildCommand: "true"
     startCommand: "python3 serve.py --host 0.0.0.0"
