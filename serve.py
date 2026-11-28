@@ -19,8 +19,8 @@ RANGE_RE = re.compile(r"bytes=(\d*)-(\d*)")
 
 # Long-lived cache for immutable-ish static assets; short for HTML.
 CACHE_LONG = "public, max-age=31536000, immutable"
-CACHE_MED = "public, max-age=86400"
-CACHE_HTML = "public, max-age=300"
+CACHE_MED = "public, max-age=300, must-revalidate"
+CACHE_HTML = "public, max-age=60, must-revalidate"
 
 GZIP_TYPES = {
     "text/html",
