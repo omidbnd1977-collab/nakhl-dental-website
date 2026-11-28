@@ -258,4 +258,31 @@
     kick();
   }
 
+  /* —— Post-hero 3D tooth scene (does not touch video hero) —— */
+  const toothScene = document.getElementById("lvToothScene");
+  const toothStage = toothScene?.querySelector(".lv-tooth-scene");
+  if (toothScene && toothStage && !reduceMotion && toothScene.hasAttribute("data-tilt")) {
+    const max = 14;
+    let rafId = 0;
+    const apply = (nx, ny) => {
+      rafId = 0;
+      toothStage.style.transform = `rotateY(${nx * max}deg) rotateX(${-ny * max}deg)`;
+    };
+    const onMove = (event) => {
+      const rect = toothScene.getBoundingClientRect();
+      const cx = rect.left + rect.width * 0.5;
+      const cy = rect.top + rect.height * 0.5;
+      const nx = (event.clientX - cx) / (rect.width * 0.5);
+      const ny = (event.clientY - cy) / (rect.height * 0.5);
+      const clampedX = Math.max(-1, Math.min(1, nx));
+      const clampedY = Math.max(-1, Math.min(1, ny));
+      if (!rafId) rafId = requestAnimationFrame(() => apply(clampedX, clampedY));
+    };
+    const reset = () => {
+      toothStage.style.transform = "";
+    };
+    toothScene.addEventListener("pointermove", onMove, { passive: true });
+    toothScene.addEventListener("pointerleave", reset, { passive: true });
+  }
+
 })();
