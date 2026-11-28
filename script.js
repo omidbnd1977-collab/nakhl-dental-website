@@ -139,7 +139,7 @@
         dx = 0;
         dy = (ch - dh) / 2;
       }
-      ctx.fillStyle = "#0f1c22";
+      ctx.fillStyle = "#0a192f";
       ctx.fillRect(0, 0, cw, ch);
       ctx.drawImage(img, dx, dy, dw, dh);
     };

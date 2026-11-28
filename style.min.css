@@ -1,20 +1,25 @@
-/* Nakhl Dental — pearl crystal landing (RTL) */
+/* Nakhl Dental — navy + champagne luxury system (RTL) */
 :root {
-  --pearl: #f6f3ee;
-  --pearl-2: #fffaf6;
-  --pearl-3: #ebe6df;
-  --shell: #d9d2c8;
-  --ink: #1c2a33;
-  --muted: #5f6b73;
-  --deep: #243843;
-  --deep-2: #1a2c36;
-  --crystal: #b8d9dc;
-  --crystal-2: #e8f4f5;
-  --gold: #b9a48a;
-  --shadow: 0 22px 50px rgba(36, 56, 67, 0.12);
-  --shadow-soft: 0 12px 28px rgba(36, 56, 67, 0.08);
-  --glass: linear-gradient(145deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.28));
-  --radius: 24px;
+  --pearl: #f3f5f8;
+  --pearl-2: #f8fafc;
+  --pearl-3: #e8edf2;
+  --shell: #d5dde6;
+  --ink: #122033;
+  --muted: #5b6b7c;
+  --deep: #0d2137;
+  --deep-2: #081722;
+  --navy: #0a192f;
+  --navy-2: #122a42;
+  --crystal: #b7cddc;
+  --crystal-2: #e7f0f6;
+  --gold: #c6b59a;
+  --gold-2: #dbcbaf;
+  --champagne: #d8c7ab;
+  --mist: #d9e4ee;
+  --shadow: 0 22px 50px rgba(10, 25, 47, 0.14);
+  --shadow-soft: 0 12px 28px rgba(10, 25, 47, 0.08);
+  --glass: linear-gradient(145deg, rgba(255, 255, 255, 0.78), rgba(232, 240, 246, 0.32));
+  --radius: 28px;
   --font: "Vazirmatn", system-ui, sans-serif;
   --display: "Cormorant Garamond", "Amiri", "Vazirmatn", serif;
   --container: 1180px;
@@ -43,10 +48,10 @@ button { font: inherit; color: inherit; background: none; }
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 70% 50% at 12% 8%, rgba(214, 236, 238, 0.55), transparent 55%),
-    radial-gradient(ellipse 55% 45% at 88% 18%, rgba(255, 248, 240, 0.9), transparent 50%),
-    radial-gradient(ellipse 60% 40% at 50% 100%, rgba(217, 210, 200, 0.35), transparent 55%),
-    linear-gradient(180deg, #fbf8f4 0%, var(--pearl) 40%, #f0ebe4 100%);
+    radial-gradient(ellipse 70% 50% at 10% 8%, rgba(185, 210, 230, 0.42), transparent 55%),
+    radial-gradient(ellipse 55% 45% at 90% 16%, rgba(232, 224, 208, 0.55), transparent 52%),
+    radial-gradient(ellipse 60% 40% at 50% 100%, rgba(198, 214, 228, 0.35), transparent 55%),
+    linear-gradient(180deg, #f8fafc 0%, var(--pearl) 42%, #e9eef4 100%);
 }
 
 .skip-link {
@@ -226,32 +231,44 @@ h1, h2, h3 {
 .btn-pearl:hover { box-shadow: var(--shadow); }
 
 .btn-deep {
-  background: linear-gradient(160deg, #2f4652, var(--deep-2));
+  background: linear-gradient(160deg, #1a3552, var(--navy));
   color: #fff;
-  border-color: var(--deep-2);
-  box-shadow: 0 12px 28px rgba(26, 44, 54, 0.28);
+  border-color: var(--navy);
+  box-shadow: 0 12px 28px rgba(10, 25, 47, 0.3);
 }
-.btn-deep:hover { box-shadow: 0 18px 36px rgba(26, 44, 54, 0.34); }
+.btn-deep:hover { box-shadow: 0 18px 36px rgba(10, 25, 47, 0.38); }
 
 .btn-ghost {
-  background: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.42);
   color: var(--deep);
-  border-color: rgba(36, 56, 67, 0.18);
-  backdrop-filter: blur(8px);
+  border-color: rgba(198, 181, 154, 0.45);
+  backdrop-filter: blur(10px);
 }
 .btn-ghost:hover {
-  background: rgba(255, 255, 255, 0.65);
-  border-color: rgba(36, 56, 67, 0.28);
+  background: rgba(255, 255, 255, 0.72);
+  border-color: rgba(198, 181, 154, 0.7);
 }
 
 .btn-ghost-dark {
-  background: transparent;
+  background: rgba(255, 255, 255, 0.45);
   color: var(--deep);
-  border-color: rgba(36, 56, 67, 0.22);
+  border-color: rgba(10, 25, 47, 0.14);
 }
 .btn-ghost-dark:hover {
-  background: rgba(255, 255, 255, 0.55);
-  border-color: rgba(36, 56, 67, 0.35);
+  background: rgba(255, 255, 255, 0.75);
+  border-color: rgba(198, 181, 154, 0.55);
+}
+
+.btn-champagne {
+  background: linear-gradient(160deg, #efe4d2, var(--champagne) 48%, #bda888);
+  color: #1a140c;
+  border-color: rgba(255, 244, 224, 0.7);
+  box-shadow:
+    0 12px 28px rgba(189, 168, 136, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+.btn-champagne:hover {
+  box-shadow: 0 18px 34px rgba(189, 168, 136, 0.42);
 }
 
 .experience-copy .btn-ghost-dark { margin-inline-start: 0.55rem; }
@@ -281,7 +298,7 @@ h1, h2, h3 {
   min-height: 560px;
   overflow: hidden;
   isolation: isolate;
-  background: #0f1c22;
+  background: var(--navy);
 }
 
 .hero-media {
@@ -303,7 +320,7 @@ h1, h2, h3 {
   image-rendering: auto;
   user-select: none;
   pointer-events: none;
-  background: #0f1c22;
+  background: var(--navy);
 }
 
 .hero-canvas { z-index: 1; }
@@ -315,8 +332,8 @@ h1, h2, h3 {
   z-index: 2;
   /* Light veil only — do not wash out footage */
   background:
-    linear-gradient(100deg, rgba(255, 252, 248, 0.28) 0%, transparent 34%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, transparent 35%, rgba(15, 28, 34, 0.2) 100%);
+    linear-gradient(100deg, rgba(216, 199, 171, 0.16) 0%, transparent 34%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, transparent 35%, rgba(10, 25, 47, 0.28) 100%);
   pointer-events: none;
 }
 
@@ -516,7 +533,7 @@ h1, h2, h3 {
   display: block;
   height: 100%;
   width: 0%;
-  background: linear-gradient(90deg, #9ec4c8, #b9a48a);
+  background: linear-gradient(90deg, #9bb6c8, var(--gold));
   transition: width 0.05s linear;
 }
 
@@ -654,8 +671,9 @@ h1, h2, h3 {
   overflow: hidden;
   color: var(--ink);
   background:
-    radial-gradient(ellipse at 70% 20%, rgba(184, 217, 220, 0.28), transparent 42%),
-    linear-gradient(160deg, #e9e4dc 0%, #f5f1eb 45%, #e4ecec 100%);
+    radial-gradient(ellipse at 72% 18%, rgba(183, 205, 220, 0.32), transparent 44%),
+    radial-gradient(ellipse at 18% 80%, rgba(216, 199, 171, 0.18), transparent 46%),
+    linear-gradient(165deg, #e7edf3 0%, #f4f6f8 48%, #e4ebf2 100%);
 }
 
 .experience-grid {
@@ -793,17 +811,17 @@ h1, h2, h3 {
 
 /* —— Footer / FAB —— */
 .site-footer {
-  --ft-navy: #0a1c2e;
-  --ft-navy-2: #10263c;
-  --ft-gold: #c9a227;
-  --ft-gold-2: #e4c56a;
-  --ft-teal: #6fc5d0;
+  --ft-navy: var(--navy);
+  --ft-navy-2: var(--navy-2);
+  --ft-gold: var(--gold);
+  --ft-gold-2: var(--gold-2);
+  --ft-teal: #7eb6c8;
   position: relative;
   margin: 2.75rem 0 0;
   color: rgba(232, 244, 248, 0.86);
   background:
-    radial-gradient(ellipse 42% 55% at 8% 78%, rgba(111, 197, 208, 0.18), transparent 58%),
-    radial-gradient(ellipse 36% 48% at 92% 28%, rgba(201, 162, 39, 0.14), transparent 52%),
+    radial-gradient(ellipse 42% 55% at 8% 78%, rgba(126, 182, 200, 0.16), transparent 58%),
+    radial-gradient(ellipse 36% 48% at 92% 28%, rgba(198, 181, 154, 0.14), transparent 52%),
     linear-gradient(165deg, #143049 0%, var(--ft-navy-2) 38%, var(--ft-navy) 72%, #06131d 100%);
   overflow: hidden;
   isolation: isolate;
@@ -815,7 +833,8 @@ h1, h2, h3 {
   line-height: 0;
   pointer-events: none;
   z-index: 2;
-  filter: drop-shadow(0 6px 14px rgba(111, 197, 208, 0.22));
+  filter: drop-shadow(0 6px 14px rgba(126, 182, 200, 0.2));
+  color: #e7edf3;
 }
 .footer-wave svg {
   width: 100%;
@@ -1251,29 +1270,29 @@ h1, h2, h3 {
   .hero-actions .btn { width: 100%; }
 }
 
-/* —— Post-hero landing (navy + gold + specialty marquee) —— */
+/* —— Post-hero landing (navy + champagne) —— */
 .landing {
-  --navy: #0b1f33;
-  --navy-2: #122a42;
-  --brand-gold: #c9a227;
-  --brand-gold-2: #e4c56a;
-  --cream: #f3ebe0;
+  --brand-gold: var(--gold);
+  --brand-gold-2: var(--gold-2);
+  --cream: #eef2f6;
   position: relative;
-  background: var(--cream);
+  background:
+    radial-gradient(ellipse 70% 50% at 80% 0%, rgba(216, 199, 171, 0.18), transparent 50%),
+    linear-gradient(180deg, #f5f7fa 0%, var(--cream) 55%, #e7edf3 100%);
   color: var(--navy);
 }
 
 .btn-crystal-gold {
   position: relative;
   overflow: hidden;
-  color: #1a1408;
-  border: 1px solid rgba(255, 236, 180, 0.85);
+  color: #1a140c;
+  border: 1px solid rgba(255, 244, 224, 0.85);
   background:
-    linear-gradient(160deg, rgba(255, 248, 220, 0.95), rgba(201, 162, 39, 0.92) 48%, rgba(168, 130, 28, 0.95));
+    linear-gradient(160deg, #f3eade, var(--champagne) 48%, #b7a07e);
   box-shadow:
-    0 10px 28px rgba(201, 162, 39, 0.35),
+    0 10px 28px rgba(183, 160, 126, 0.32),
     inset 0 1px 0 rgba(255, 255, 255, 0.75),
-    inset 0 -1px 0 rgba(120, 90, 10, 0.2);
+    inset 0 -1px 0 rgba(120, 100, 70, 0.16);
   backdrop-filter: blur(10px);
 }
 .btn-crystal-gold::after {
@@ -1309,6 +1328,7 @@ h1, h2, h3 {
   background: linear-gradient(180deg, var(--navy) 0%, var(--navy-2) 100%);
   color: #fff;
   perspective: 900px;
+  box-shadow: 0 10px 30px rgba(10, 25, 47, 0.18);
 }
 
 .landing-bar {
@@ -1416,9 +1436,9 @@ h1, h2, h3 {
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  color: #1a1408;
-  background: linear-gradient(160deg, #ffe9a8, var(--brand-gold));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 6px 14px rgba(201, 162, 39, 0.35);
+  color: #1a140c;
+  background: linear-gradient(160deg, #f4ead8, var(--brand-gold));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 6px 14px rgba(183, 160, 126, 0.35);
 }
 
 .landing-burger {
@@ -1447,7 +1467,7 @@ h1, h2, h3 {
   display: grid;
   align-items: end;
   overflow: hidden;
-  background: var(--navy);
+  background: linear-gradient(160deg, #0d2137, var(--navy));
   color: #fff;
 }
 .landing-banner-media {
@@ -1515,6 +1535,7 @@ h1, h2, h3 {
   z-index: 2;
   line-height: 0;
   pointer-events: none;
+  color: #eef2f6;
 }
 .landing-wave svg {
   width: 100%;
@@ -1525,7 +1546,7 @@ h1, h2, h3 {
 .specialty {
   position: relative;
   padding: 1.5rem 0 3.25rem;
-  background: var(--cream);
+  background: transparent;
   overflow: hidden;
 }
 .specialty-head {
@@ -1682,7 +1703,7 @@ h1, h2, h3 {
 .spec-item:hover .spec-label,
 .spec-item.is-active .spec-label,
 .spec-item.is-tilting .spec-label {
-  color: #8a6d1a;
+  color: #8d7350;
   transform: translateZ(42px) translateY(-2px);
 }
 
