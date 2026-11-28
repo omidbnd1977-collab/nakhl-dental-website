@@ -285,4 +285,226 @@
     toothScene.addEventListener("pointerleave", reset, { passive: true });
   }
 
+  /* —— Services carousel: enter from left, exit to right —— */
+  const svcCarousel = document.getElementById("svcCarousel");
+  const svcTrack = document.getElementById("svcTrack");
+  const svcViewport = document.getElementById("svcViewport");
+  const svcPrev = document.getElementById("svcPrev");
+  const svcNext = document.getElementById("svcNext");
+  const svcDots = document.getElementById("svcDots");
+
+  if (svcCarousel && svcTrack && svcViewport) {
+    const slides = [...svcTrack.querySelectorAll(".lv-svc-slide")];
+    const total = slides.length;
+    const EXIT_MS = reduceMotion ? 0 : 480;
+    const ENTER_MS = reduceMotion ? 0 : 620;
+    let index = 0;
+    let visible = 1;
+    let busy = false;
+    let timer = 0;
+    let pointerStartX = 0;
+    let pointerDelta = 0;
+    let pointerActive = false;
+
+    const wait = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
+
+    const readVisible = () => {
+      const raw = getComputedStyle(svcCarousel).getPropertyValue("--svc-visible").trim();
+      const n = Number.parseInt(raw, 10);
+      return Number.isFinite(n) && n > 0 ? n : 1;
+    };
+
+    const pageCount = () => Math.max(1, total - visible + 1);
+
+    const stepPx = () => {
+      const slide = slides[0];
+      if (!slide) return 0;
+      const gap = Number.parseFloat(getComputedStyle(svcTrack).gap) || 0;
+      return slide.getBoundingClientRect().width + gap;
+    };
+
+    const restingX = (i = index) => -i * stepPx();
+
+    const setX = (x, instant) => {
+      if (instant) svcTrack.classList.add("is-instant");
+      else svcTrack.classList.remove("is-instant");
+      svcTrack.style.transform = `translate3d(${x}px, 0, 0)`;
+      if (instant) {
+        void svcTrack.offsetWidth;
+        svcTrack.classList.remove("is-instant");
+      }
+    };
+
+    const syncDots = () => {
+      if (!svcDots) return;
+      const pages = pageCount();
+      svcDots.innerHTML = "";
+      for (let i = 0; i < pages; i++) {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "lv-svc-dot" + (i === index ? " is-active" : "");
+        btn.setAttribute("role", "tab");
+        btn.setAttribute("aria-label", `اسلاید ${i + 1}`);
+        btn.setAttribute("aria-selected", i === index ? "true" : "false");
+        btn.addEventListener("click", () => {
+          void goTo(i, i >= index ? 1 : -1);
+        });
+        svcDots.appendChild(btn);
+      }
+    };
+
+    const wrapIndex = (value) => {
+      const pages = pageCount();
+      return ((value % pages) + pages) % pages;
+    };
+
+    /**
+     * direction > 0 (next): current page exits to the right, next enters from the left
+     * direction < 0 (prev): current exits left, previous enters from the right
+     */
+    const goTo = async (nextIndex, direction = 1) => {
+      const target = wrapIndex(nextIndex);
+      if (busy || target === index) return;
+      busy = true;
+      stopAuto();
+
+      const width = svcViewport.clientWidth || stepPx();
+      const from = restingX(index);
+      const dir = direction >= 0 ? 1 : -1;
+
+      if (EXIT_MS === 0 && ENTER_MS === 0) {
+        index = target;
+        setX(restingX(index), true);
+        syncDots();
+        busy = false;
+        startAuto();
+        return;
+      }
+
+      // Phase 1 — exit
+      setX(from + dir * width, false);
+      await wait(EXIT_MS);
+
+      // Phase 2 — park off-screen on the opposite side, then enter
+      index = target;
+      setX(restingX(index) - dir * width, true);
+      syncDots();
+      await wait(16);
+      setX(restingX(index), false);
+      await wait(ENTER_MS);
+
+      busy = false;
+      startAuto();
+    };
+
+    const next = () => goTo(index + 1, 1);
+    const prev = () => goTo(index - 1, -1);
+
+    const stopAuto = () => {
+      if (timer) {
+        window.clearInterval(timer);
+        timer = 0;
+      }
+    };
+    const startAuto = () => {
+      stopAuto();
+      if (reduceMotion || pageCount() <= 1) return;
+      timer = window.setInterval(() => {
+        void next();
+      }, 4300);
+    };
+
+    const layout = () => {
+      visible = readVisible();
+      const pages = pageCount();
+      if (index > pages - 1) index = pages - 1;
+      setX(restingX(index), true);
+      syncDots();
+      if (!busy) startAuto();
+    };
+
+    if (svcNext) {
+      svcNext.addEventListener("click", () => {
+        void next();
+      });
+    }
+    if (svcPrev) {
+      svcPrev.addEventListener("click", () => {
+        void prev();
+      });
+    }
+
+    svcViewport.addEventListener(
+      "pointerdown",
+      (event) => {
+        if (busy) return;
+        if (event.pointerType === "mouse" && event.button !== 0) return;
+        pointerActive = true;
+        pointerStartX = event.clientX;
+        pointerDelta = 0;
+        stopAuto();
+        try {
+          svcViewport.setPointerCapture(event.pointerId);
+        } catch (_) {
+          /* ignore */
+        }
+      },
+      { passive: true }
+    );
+    svcViewport.addEventListener(
+      "pointermove",
+      (event) => {
+        if (!pointerActive) return;
+        pointerDelta = event.clientX - pointerStartX;
+      },
+      { passive: true }
+    );
+    const endPointer = () => {
+      if (!pointerActive) return;
+      pointerActive = false;
+      const threshold = Math.min(72, svcViewport.clientWidth * 0.18);
+      // Swipe right → next (exit right / enter left)
+      if (pointerDelta > threshold) void next();
+      else if (pointerDelta < -threshold) void prev();
+      else startAuto();
+      pointerDelta = 0;
+    };
+    svcViewport.addEventListener("pointerup", endPointer);
+    svcViewport.addEventListener("pointercancel", endPointer);
+
+    svcCarousel.addEventListener("mouseenter", stopAuto);
+    svcCarousel.addEventListener("mouseleave", () => {
+      if (!busy) startAuto();
+    });
+    svcCarousel.addEventListener("focusin", stopAuto);
+    svcCarousel.addEventListener("focusout", (event) => {
+      if (!svcCarousel.contains(event.relatedTarget) && !busy) startAuto();
+    });
+
+    window.addEventListener(
+      "resize",
+      () => {
+        window.clearTimeout(svcCarousel._resizeTimer);
+        svcCarousel._resizeTimer = window.setTimeout(layout, 120);
+      },
+      { passive: true }
+    );
+
+    if ("IntersectionObserver" in window) {
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              if (!busy) startAuto();
+            } else stopAuto();
+          });
+        },
+        { threshold: 0.2 }
+      );
+      io.observe(svcCarousel);
+    }
+
+    layout();
+  }
+
 })();

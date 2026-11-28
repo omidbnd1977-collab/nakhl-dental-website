@@ -863,16 +863,98 @@ h1, h2, h3 {
 .lv-lead { margin: 1.1rem 0 0; color: rgba(36,53,60,.8); line-height: 2; font-size: 1.05rem; }
 .lv-hero-cta { display: flex; flex-wrap: wrap; gap: 0.85rem; margin-top: 1.5rem; }
 
-/* services */
-.lv-svc-grid {
-  margin-top: 2rem;
-  display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 1.1rem; text-align: start;
+/* services carousel — enter from left, exit to right */
+.lv-svc-carousel {
+  margin-top: 1.5rem;
+  width: 100%;
+  --svc-gap: 1.1rem;
+  --svc-visible: 1;
+}
+.lv-svc-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+  margin-bottom: 1.15rem;
+}
+.lv-svc-nav {
+  display: inline-grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  border: 1px solid var(--lv-border);
+  background: rgba(255, 255, 255, 0.88);
+  color: var(--lv-primary);
+  box-shadow: var(--shadow-soft);
+  cursor: pointer;
+  transition: background .25s var(--ease), border-color .25s var(--ease), transform .25s var(--ease);
+}
+.lv-svc-nav:hover {
+  border-color: rgba(196, 154, 74, 0.55);
+  background: #fff;
+  transform: translateY(-1px);
+}
+.lv-svc-nav:disabled {
+  opacity: 0.45;
+  cursor: default;
+  transform: none;
+}
+.lv-svc-dots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.45rem;
+}
+.lv-svc-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  border: 0;
+  padding: 0;
+  background: rgba(47, 74, 82, 0.22);
+  cursor: pointer;
+  transition: width .3s var(--ease), background .3s var(--ease);
+}
+.lv-svc-dot.is-active {
+  width: 22px;
+  background: var(--lv-gold);
+}
+.lv-svc-viewport {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  /* Physical left/right motion regardless of page RTL */
+  direction: ltr;
+  touch-action: pan-y;
+}
+.lv-svc-track {
+  display: flex;
+  gap: var(--svc-gap);
+  will-change: transform;
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.lv-svc-track.is-instant {
+  transition: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lv-svc-track { transition: none !important; }
+}
+.lv-svc-slide {
+  flex: 0 0 calc((100% - (var(--svc-visible) - 1) * var(--svc-gap)) / var(--svc-visible));
+  max-width: 100%;
+  text-align: start;
+  direction: rtl;
 }
 .lv-card {
-  overflow: hidden; border-radius: 1.5rem; border: 1px solid var(--lv-border);
-  transition: transform .3s var(--ease);
+  overflow: hidden;
+  border-radius: 1.5rem;
+  border: 1px solid var(--lv-border);
+  background: rgba(255, 255, 255, 0.72);
+  transition: box-shadow .3s var(--ease), transform .3s var(--ease);
+  height: 100%;
 }
-.lv-card:hover { transform: translateY(-6px); }
+.lv-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
 .lv-card > img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; }
 .lv-card-body { position: relative; padding: 1.6rem 1.1rem 1.15rem; }
 .lv-card-ico {
@@ -885,6 +967,13 @@ h1, h2, h3 {
   display: inline-flex; margin-top: 0.85rem; font-size: 0.78rem; color: var(--lv-muted); font-weight: 600;
 }
 .lv-card-body a:hover { color: var(--lv-gold); }
+
+@media (min-width: 641px) {
+  .lv-svc-carousel { --svc-visible: 2; }
+}
+@media (min-width: 1024px) {
+  .lv-svc-carousel { --svc-visible: 3; }
+}
 
 /* about */
 .lv-about {
@@ -982,7 +1071,6 @@ h1, h2, h3 {
 .wa-fab:hover { transform: translateY(-4px) scale(1.05); }
 
 @media (max-width: 1100px) {
-  .lv-svc-grid { grid-template-columns: repeat(3, minmax(0,1fr)); }
   .lv-gallery { grid-template-columns: 1fr 1fr; }
   .lv-gallery .lv-chip { grid-column: 1 / -1; justify-self: center; }
   .lv-why-grid { grid-template-columns: 1fr 1fr; }
@@ -1028,7 +1116,9 @@ h1, h2, h3 {
   .lv-about img { order: -1; }
 }
 @media (max-width: 640px) {
-  .lv-svc-grid, .lv-why-grid, .lv-footer-grid, .lv-gallery { grid-template-columns: 1fr; }
+  .lv-why-grid, .lv-footer-grid, .lv-gallery { grid-template-columns: 1fr; }
+  .lv-svc-carousel { --svc-visible: 1; }
+  .lv-svc-nav { width: 38px; height: 38px; }
   .lv-praise { grid-template-columns: 1fr; justify-items: center; text-align: center; }
   .lv-praise-copy { text-align: center; }
   .lv-praise-meta { justify-content: center; }
