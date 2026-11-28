@@ -2,7 +2,6 @@
   "use strict";
 
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
   /* —— Landing mobile nav —— */
   const landingNav = document.getElementById("landingNav");
@@ -29,42 +28,6 @@
     });
     window.addEventListener("keydown", (e) => {
       if (e.key === "Escape") close();
-    });
-  }
-
-  /* —— Specialty marquee: duplicate group for seamless L→R loop —— */
-  const specialtyTrack = document.getElementById("specialtyTrack");
-  if (specialtyTrack) {
-    const group = specialtyTrack.querySelector(".marquee-group");
-    if (group) {
-      const clone = group.cloneNode(true);
-      clone.setAttribute("aria-hidden", "true");
-      clone.querySelectorAll("a").forEach((a) => a.setAttribute("tabindex", "-1"));
-      clone.querySelectorAll("[id]").forEach((node) => {
-        const oldId = node.id;
-        const nextId = `${oldId}-b`;
-        node.id = nextId;
-        clone.querySelectorAll(`[fill="url(#${oldId})"]`).forEach((el) => {
-          el.setAttribute("fill", `url(#${nextId})`);
-        });
-      });
-      specialtyTrack.appendChild(clone);
-    }
-  }
-
-  /* —— 3D hover on landing nav links —— */
-  if (!reduceMotion && finePointer) {
-    document.querySelectorAll(".nav-3d").forEach((el) => {
-      el.addEventListener("pointermove", (event) => {
-        const rect = el.getBoundingClientRect();
-        const x = (event.clientX - rect.left) / rect.width - 0.5;
-        const y = (event.clientY - rect.top) / rect.height - 0.5;
-        el.style.transform =
-          `translateZ(22px) rotateX(${(-y * 14).toFixed(2)}deg) rotateY(${(x * 16).toFixed(2)}deg)`;
-      });
-      el.addEventListener("pointerleave", () => {
-        el.style.transform = "";
-      });
     });
   }
 
@@ -293,53 +256,6 @@
     }
 
     kick();
-  }
-
-  /* —— Marquee: pause while interacting (desktop hover + mobile touch) —— */
-  document.querySelectorAll("[data-marquee]").forEach((root) => {
-    const pause = () => root.classList.add("is-paused");
-    const resume = () => root.classList.remove("is-paused");
-    root.addEventListener("pointerenter", pause);
-    root.addEventListener("pointerleave", resume);
-    root.addEventListener("pointerdown", pause);
-    root.addEventListener("pointerup", resume);
-    root.addEventListener("pointercancel", resume);
-  });
-
-  /* —— 3D tilt (fine pointer) + tap pop (touch) —— */
-  if (!reduceMotion) {
-    document.querySelectorAll(".tilt-3d").forEach((el) => {
-      if (el.closest(".hero-pin")) return;
-      const strength = Number(el.dataset.tiltStrength || 8);
-      const max = Math.min(Math.max(strength, 4), 18);
-      const pop = el.classList.contains("spec-item") ? 28 : 12;
-      const reset = () => {
-        el.classList.remove("is-tilting", "is-active");
-        el.style.transform = "";
-      };
-
-      if (finePointer) {
-        el.addEventListener("pointerenter", () => el.classList.add("is-tilting"));
-        el.addEventListener("pointerleave", reset);
-        el.addEventListener("pointermove", (event) => {
-          const rect = el.getBoundingClientRect();
-          const x = (event.clientX - rect.left) / rect.width;
-          const y = (event.clientY - rect.top) / rect.height;
-          el.style.transform =
-            `perspective(900px) rotateX(${((0.5 - y) * max * 2).toFixed(2)}deg) rotateY(${(((x - 0.5) * max * 2)).toFixed(2)}deg) translateZ(${pop}px)`;
-        });
-      } else {
-        // Mobile/touch: press pop + sheen without requiring hover
-        el.addEventListener("pointerdown", () => {
-          el.classList.add("is-active", "is-tilting");
-          el.style.transform =
-            `perspective(900px) rotateX(6deg) rotateY(-5deg) translateZ(${Math.min(pop, 18)}px) scale(1.03)`;
-        });
-        el.addEventListener("pointerup", reset);
-        el.addEventListener("pointercancel", reset);
-        el.addEventListener("pointerleave", reset);
-      }
-    });
   }
 
 })();
