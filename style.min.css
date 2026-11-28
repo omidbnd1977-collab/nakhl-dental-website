@@ -701,7 +701,7 @@ h1, h2, h3 {
   pointer-events: none;
 }
 .intro-ring--1 { width: 78%; height: 78%; inset: 11%; animation: floaty 8s ease-in-out infinite; }
-.intro-ring--2 { width: 92%; height: 92%; inset: 4%; border-color: rgba(111, 160, 170, 0.28); animation: floaty 9s ease-in-out infinite reverse; }
+.intro-ring--2 { width: 92%; height: 92%; inset: 4%; border-color: rgba(112, 157, 158, 0.4); animation: floaty 9s ease-in-out infinite reverse; }
 .intro-ring--3 { width: 104%; height: 104%; inset: -2%; border-color: rgba(197, 160, 89, 0.18); border-style: dashed; }
 .intro-wave {
   position: relative;
@@ -836,72 +836,131 @@ h1, h2, h3 {
 .landing-burger.is-open span:nth-child(2) { opacity: 0; }
 .landing-burger.is-open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-/* Services */
+/* Services — exact mockup cards */
 .services-block {
-  padding: clamp(3rem, 6vw, 4.5rem) 0 2.5rem;
+  padding: clamp(2.5rem, 5vw, 4rem) 0 2.75rem;
+  background: #f9f5f0;
 }
+.svc-head {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.svc-kicker {
+  margin: 0 0 0.65rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #b8924a;
+}
+.svc-kicker span {
+  display: block;
+  width: 2.1rem;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #c5a059, transparent);
+}
+.svc-head h2 {
+  margin: 0 0 0.55rem;
+  font-family: var(--font);
+  font-weight: 700;
+  font-size: clamp(1.35rem, 2.4vw, 1.9rem);
+  color: #2d4748;
+}
+.svc-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #6b6560;
+  transition: color 0.25s;
+}
+.svc-all:hover { color: #b8924a; }
+
 .svc-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 1rem;
+  gap: 1.05rem;
 }
 .svc-card {
   background: #fff;
-  border-radius: 28px;
-  padding: 0.85rem 0.85rem 1.1rem;
-  box-shadow: var(--shadow-soft);
-  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 26px;
+  overflow: hidden;
+  box-shadow: 0 14px 34px rgba(45, 71, 72, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.95);
   display: flex;
   flex-direction: column;
-  gap: 0.7rem;
   transition: transform 0.35s var(--ease), box-shadow 0.35s;
 }
 .svc-card:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--shadow);
+  transform: translateY(-7px);
+  box-shadow: 0 22px 42px rgba(45, 71, 72, 0.14);
 }
 .svc-card-media {
-  border-radius: 22px;
   overflow: hidden;
-  aspect-ratio: 1;
+  aspect-ratio: 1.05;
   background: #efe8de;
 }
 .svc-card-media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.45s var(--ease);
+}
+.svc-card:hover .svc-card-media img { transform: scale(1.04); }
+.svc-card-media--contain {
+  display: grid;
+  place-items: center;
+  padding: 0.65rem;
 }
 .svc-card-media--contain img {
   object-fit: contain;
-  padding: 0.5rem;
+  width: 88%;
+  height: 88%;
 }
-.svc-card h3 {
-  margin: 0;
+.svc-card-body {
+  position: relative;
+  padding: 1.55rem 0.85rem 1.15rem;
+  text-align: center;
+  background: linear-gradient(180deg, #fffefb, #faf6f0);
+}
+.svc-badge {
+  position: absolute;
+  top: 0;
+  inset-inline-start: 0.95rem;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: #2d4748;
+  background: #fff;
+  border: 1px solid rgba(197, 160, 89, 0.35);
+  box-shadow: 0 8px 18px rgba(45, 71, 72, 0.12);
+}
+.svc-card-body h3 {
+  margin: 0 0 0.55rem;
   font-family: var(--font);
   font-size: 0.98rem;
   font-weight: 700;
-  text-align: center;
-  color: var(--ink);
+  color: #2d4748;
 }
 .svc-more {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.4rem;
-  margin-top: auto;
+  gap: 0.25rem;
   font-size: 0.78rem;
   font-weight: 600;
-  color: var(--gold);
+  color: #b8924a;
+  transition: color 0.25s, gap 0.25s;
 }
-.svc-ico {
-  color: var(--gold);
-  display: inline-grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 1px solid rgba(197, 160, 89, 0.45);
-  background: rgba(197, 160, 89, 0.08);
+.svc-card:hover .svc-more {
+  color: #8f6d2f;
+  gap: 0.4rem;
 }
 
 /* About */
