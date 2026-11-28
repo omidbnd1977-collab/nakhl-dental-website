@@ -296,12 +296,15 @@
   if (svcCarousel && svcTrack && svcViewport) {
     const slides = [...svcTrack.querySelectorAll(".lv-svc-slide")];
     const total = slides.length;
-    const EXIT_MS = reduceMotion ? 0 : 480;
-    const ENTER_MS = reduceMotion ? 0 : 620;
+    const EXIT_MS = reduceMotion ? 0 : 520;
+    const ENTER_MS = reduceMotion ? 0 : 680;
+    const AUTO_MS = 3200;
     let index = 0;
     let visible = 1;
     let busy = false;
     let timer = 0;
+    let inView = true;
+    let userPaused = false;
     let pointerStartX = 0;
     let pointerDelta = 0;
     let pointerActive = false;
@@ -358,17 +361,37 @@
       return ((value % pages) + pages) % pages;
     };
 
+    const stopAuto = () => {
+      if (timer) {
+        window.clearTimeout(timer);
+        timer = 0;
+      }
+    };
+
+    const startAuto = () => {
+      stopAuto();
+      if (reduceMotion || userPaused || !inView || document.hidden || pageCount() <= 1 || busy) {
+        return;
+      }
+      timer = window.setTimeout(() => {
+        void goTo(index + 1, 1);
+      }, AUTO_MS);
+    };
+
     /**
      * direction > 0 (next): current page exits to the right, next enters from the left
      * direction < 0 (prev): current exits left, previous enters from the right
      */
     const goTo = async (nextIndex, direction = 1) => {
       const target = wrapIndex(nextIndex);
-      if (busy || target === index) return;
+      if (busy || target === index) {
+        startAuto();
+        return;
+      }
       busy = true;
       stopAuto();
 
-      const width = svcViewport.clientWidth || stepPx();
+      const width = Math.max(svcViewport.clientWidth, stepPx(), 1);
       const from = restingX(index);
       const dir = direction >= 0 ? 1 : -1;
 
@@ -381,15 +404,15 @@
         return;
       }
 
-      // Phase 1 — exit
+      // Phase 1 — exit (next: to the right)
       setX(from + dir * width, false);
       await wait(EXIT_MS);
 
-      // Phase 2 — park off-screen on the opposite side, then enter
+      // Phase 2 — park off-screen on the opposite side, then enter (next: from the left)
       index = target;
       setX(restingX(index) - dir * width, true);
       syncDots();
-      await wait(16);
+      await wait(20);
       setX(restingX(index), false);
       await wait(ENTER_MS);
 
@@ -400,27 +423,13 @@
     const next = () => goTo(index + 1, 1);
     const prev = () => goTo(index - 1, -1);
 
-    const stopAuto = () => {
-      if (timer) {
-        window.clearInterval(timer);
-        timer = 0;
-      }
-    };
-    const startAuto = () => {
-      stopAuto();
-      if (reduceMotion || pageCount() <= 1) return;
-      timer = window.setInterval(() => {
-        void next();
-      }, 4300);
-    };
-
     const layout = () => {
       visible = readVisible();
       const pages = pageCount();
       if (index > pages - 1) index = pages - 1;
       setX(restingX(index), true);
       syncDots();
-      if (!busy) startAuto();
+      startAuto();
     };
 
     if (svcNext) {
@@ -442,6 +451,7 @@
         pointerActive = true;
         pointerStartX = event.clientX;
         pointerDelta = 0;
+        userPaused = true;
         stopAuto();
         try {
           svcViewport.setPointerCapture(event.pointerId);
@@ -462,6 +472,7 @@
     const endPointer = () => {
       if (!pointerActive) return;
       pointerActive = false;
+      userPaused = false;
       const threshold = Math.min(72, svcViewport.clientWidth * 0.18);
       // Swipe right → next (exit right / enter left)
       if (pointerDelta > threshold) void next();
@@ -472,13 +483,21 @@
     svcViewport.addEventListener("pointerup", endPointer);
     svcViewport.addEventListener("pointercancel", endPointer);
 
-    svcCarousel.addEventListener("mouseenter", stopAuto);
-    svcCarousel.addEventListener("mouseleave", () => {
-      if (!busy) startAuto();
+    // Pause only while keyboard-focus is inside controls (hover no longer kills autoplay)
+    svcCarousel.addEventListener("focusin", () => {
+      userPaused = true;
+      stopAuto();
     });
-    svcCarousel.addEventListener("focusin", stopAuto);
     svcCarousel.addEventListener("focusout", (event) => {
-      if (!svcCarousel.contains(event.relatedTarget) && !busy) startAuto();
+      if (!svcCarousel.contains(event.relatedTarget)) {
+        userPaused = false;
+        startAuto();
+      }
+    });
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) stopAuto();
+      else startAuto();
     });
 
     window.addEventListener(
@@ -494,12 +513,12 @@
       const io = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              if (!busy) startAuto();
-            } else stopAuto();
+            inView = entry.isIntersecting;
+            if (inView) startAuto();
+            else stopAuto();
           });
         },
-        { threshold: 0.2 }
+        { threshold: 0.12, rootMargin: "40px 0px" }
       );
       io.observe(svcCarousel);
     }
