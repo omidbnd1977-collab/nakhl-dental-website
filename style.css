@@ -685,7 +685,7 @@ h1, h2, h3 {
   background:
     radial-gradient(ellipse 40% 60% at 92% 50%, rgba(126, 198, 208, 0.14), transparent 60%),
     radial-gradient(ellipse 30% 40% at 10% 80%, rgba(196, 154, 74, 0.08), transparent 55%),
-    linear-gradient(90deg, var(--lv-bg) 0%, rgba(248, 244, 238, 0.92) 46%, rgba(248, 244, 238, 0.55) 100%);
+    linear-gradient(90deg, var(--lv-bg) 0%, rgba(248, 244, 238, 0.94) 38%, rgba(248, 244, 238, 0.25) 68%, transparent 100%);
 }
 .lv-hero-grid {
   position: relative;
@@ -705,43 +705,59 @@ h1, h2, h3 {
 .lv-hero-visual {
   display: grid;
   place-items: center;
-  perspective: 1200px;
+  justify-items: start;
+  perspective: 1400px;
   transform-style: preserve-3d;
+}
+.lv-tooth-float {
+  animation: floaty 7.5s ease-in-out infinite;
+  will-change: transform;
 }
 .lv-tooth-scene {
   position: relative;
-  width: min(100%, 520px);
-  aspect-ratio: 0.9;
+  width: min(100%, clamp(280px, 42vw, 620px));
   transform-style: preserve-3d;
   transition: transform 0.14s ease-out;
 }
+.lv-tooth-plate {
+  position: relative;
+  padding: clamp(0.65rem, 2vw, 1.1rem);
+  border-radius: 1.65rem;
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.72), rgba(248, 244, 238, 0.35));
+  border: 1px solid rgba(196, 154, 74, 0.28);
+  box-shadow:
+    0 32px 64px rgba(47, 74, 82, 0.14),
+    0 0 0 1px rgba(255, 255, 255, 0.65) inset;
+  transform: translateZ(0);
+}
 .lv-tooth-art {
   position: relative;
-  z-index: 2;
+  z-index: 1;
   display: block;
   width: 100%;
   height: auto;
   user-select: none;
   -webkit-user-drag: none;
-  filter: drop-shadow(0 26px 42px rgba(47, 74, 82, 0.18));
-  transform: translateZ(36px);
-  animation: floaty 7.5s ease-in-out infinite;
+  border-radius: 1.15rem;
+  filter: drop-shadow(0 22px 36px rgba(47, 74, 82, 0.22)) saturate(1.06) contrast(1.04);
+  transform: translateZ(48px);
+  isolation: isolate;
 }
-.lv-tooth-sheen {
+.lv-tooth-plate::after {
+  content: "";
   position: absolute;
-  z-index: 5;
   inset: 0;
+  border-radius: inherit;
   pointer-events: none;
-  background: linear-gradient(115deg, transparent 28%, rgba(255, 255, 255, 0.42) 48%, transparent 66%);
-  transform: translateX(-130%);
-  animation: lvSheen 5.5s ease-in-out infinite;
-  mix-blend-mode: screen;
-  opacity: 0.65;
+  background: linear-gradient(125deg, transparent 36%, rgba(255, 255, 255, 0.35) 50%, transparent 64%);
+  transform: translateX(-120%);
+  animation: lvSheen 6.5s ease-in-out infinite;
+  opacity: 0.55;
 }
 @keyframes lvSheen {
-  0%, 58% { transform: translateX(-130%); }
-  78% { transform: translateX(130%); }
-  100% { transform: translateX(130%); }
+  0%, 55% { transform: translateX(-120%); }
+  72% { transform: translateX(115%); }
+  100% { transform: translateX(115%); }
 }
 .lv-hero-copy h1 {
   margin: 0.55rem 0 0; font-family: var(--font); font-weight: 800;

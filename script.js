@@ -260,7 +260,7 @@
 
   /* —— Post-hero 3D tooth scene (does not touch video hero) —— */
   const toothScene = document.getElementById("lvToothScene");
-  const toothStage = toothScene?.querySelector(".lv-tooth-scene");
+  const toothStage = toothScene?.querySelector(".lv-tooth-float") || toothScene?.querySelector(".lv-tooth-scene");
   if (toothScene && toothStage && !reduceMotion && toothScene.hasAttribute("data-tilt")) {
     const max = 14;
     let rafId = 0;
